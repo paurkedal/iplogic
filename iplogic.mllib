@@ -4,6 +4,7 @@ iplogic_parser
 iplogic_trans
 iplogic_types
 
+bitstring
 diag
 pervasive
 shell_monoid

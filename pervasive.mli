@@ -23,3 +23,37 @@ module List : sig
 
     val fold : ('a -> 'b -> 'b) -> 'a list -> 'b -> 'b
 end
+
+module Char : sig
+    include module type of Char
+
+    val is_space : char -> bool
+    val is_digit : char -> bool
+    val is_lower : char -> bool
+    val is_upper : char -> bool
+    val is_alpha : char -> bool
+    val is_alnum : char -> bool
+end
+
+module String : sig
+    include module type of String
+
+    val skip_while : (char -> bool) -> string -> int -> int
+    val rskip_while : (char -> bool) -> string -> int -> int
+    val skip_until : (char -> bool) -> string -> int -> int
+    val rskip_until : (char -> bool) -> string -> int -> int
+    val slice : int -> int -> string -> string
+    val slice_to : int -> string -> string
+    val slice_from : int -> string -> string
+    val split_at : int -> string -> string * string
+    val split_on_first : (char -> bool) -> string -> string * string
+    val split_on_last : (char -> bool) -> string -> string * string
+end
+
+module Int : sig
+    type t = int
+
+    val compare : int -> int -> int
+
+    val bitcount : int -> int
+end
