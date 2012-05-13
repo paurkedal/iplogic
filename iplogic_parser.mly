@@ -45,7 +45,7 @@ let parse_error s =
 %start start
 %%
 
-start: decls EOF { $1 };
+start: decls EOF { List.rev $1 };
 
 decls:
     /* empty */ { [] }

@@ -1,3 +1,9 @@
+iplogic_iptables
 iplogic_lexer
 iplogic_parser
+iplogic_trans
 iplogic_types
+
+diag
+pervasive
+shell_monoid
