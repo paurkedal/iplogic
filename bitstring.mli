@@ -24,14 +24,21 @@ val get : int -> t -> bool
 val get8 : int -> t -> int
 val get16 : int -> t -> int
 
+val empty : t
+
 val init : int -> (int -> bool) -> t
 val init8 : int -> (int -> int) -> t
 val init16 : int -> (int -> int) -> t
+
+val equal : t -> t -> bool
 
 val foldi : (int -> bool -> 'a -> 'a) -> t -> 'a -> 'a
 val foldi8 : (int -> int -> 'a -> 'a) -> t -> 'a -> 'a
 val foldi16 : (int -> int -> 'a -> 'a) -> t -> 'a -> 'a
 
+val cat : t -> t -> t
+
+val slice : int -> int -> t -> t
 val prefix : int -> t -> t
 val common_prefix_length : t -> t -> int
 val common_prefix : t -> t -> t

@@ -87,7 +87,25 @@ let test () =
 
     assert (n = Bitstring.common_prefix_length bs bs);
     assert (n / 8 * 8 = Bitstring.common_prefix_length bs bs8);
-    assert (n / 16 * 16 = Bitstring.common_prefix_length bs bs16)
+    assert (n / 16 * 16 = Bitstring.common_prefix_length bs bs16);
+
+    let nA = Random.int (n + 1) in
+    let nB = n - nA in
+    let bsA = Bitstring.init nA (fun i -> Array.get data i) in
+    let bsB = Bitstring.init nB (fun i -> Array.get data (nA + i)) in
+    let bsAB = Bitstring.cat bsA bsB in
+    assert (n = Bitstring.length bsAB);
+    assert (n = Bitstring.common_prefix_length bs bsAB);
+    assert (Bitstring.equal bs bsAB);
+
+    let bsA' = Bitstring.prefix nA bs in
+    assert (Bitstring.equal bsA bsA');
+    let bsB' = Bitstring.slice nA n bs in
+    assert (Bitstring.equal bsB bsB');
+    let nC = Random.int (nB + 1) in
+    let bsC = Bitstring.slice nA (nA + nC) bs in
+    let bsC' = Bitstring.prefix nC bsB in
+    assert (Bitstring.equal bsC bsC')
 
 let () =
     for i = 0 to 1000 do test () done
