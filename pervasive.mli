@@ -14,6 +14,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
+val ident : 'a -> 'a
+val konst : 'a -> 'b -> 'a
+val (|<) : ('b -> 'c) -> ('a -> 'b) -> 'a -> 'c
+
 module Option : sig
     val iter : ('a -> unit) -> 'a option -> unit
 end

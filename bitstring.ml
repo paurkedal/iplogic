@@ -56,6 +56,10 @@ let init n f =
     if nlast <> 0 then Array1.set a ilast (mk16 nlast (n - 1) 0);
     (a, n)
 
+let singleton_false = init 1 (konst false)
+let singleton_true  = init 1 (konst true)
+let singleton = function false -> singleton_false | true -> singleton_true
+
 let equal (aL, nL) (aR, nR) =
     if nL <> nR then false else
     let m = (nL + 15) / 16 in
@@ -102,6 +106,10 @@ let foldi16 f (a, n) accu =
 	accu_x := f i (Array1.get a i) !accu_x
     done;
     !accu_x
+
+let iteri f b = foldi (fun i x () -> f i x) b ()
+let iteri8 f b = foldi8 (fun i x () -> f i x) b ()
+let iteri16 f b = foldi16 (fun i x () -> f i x) b ()
 
 let cat (a0, n0) (a1, n1) =
     if n1 = 0 then (a0, n0) else
@@ -197,3 +205,29 @@ let common_prefix_length (a0, n0) (a1, n1) =
     loop 0
 
 let common_prefix b0 b1 = prefix (common_prefix_length b0 b1) b0
+
+let common_prefix_length_from i0 b0 i1 b1 =
+    if i0 = 0 && i1 = 0 then common_prefix_length b0 b1 else
+    (* TODO: Can be optimized, though it'll take some coding for unaligned
+     * cases. *)
+    let i_max = min (length b0 - i0) (length b1 - i1) in
+    let rec loop i =
+	if i >= i_max || get (i + i0) b0 <> get (i + i1) b1 then i else
+	loop (i + 1) in
+    loop 0
+
+let to_string b =
+    if length b = 0 then "[]" else
+    let buf = Buffer.create (length b) in
+    iteri (fun i x -> Buffer.add_char buf (if x then '1' else '0')) b;
+    Buffer.contents buf
+
+let of_string s =
+    init (String.length s)
+	begin fun i ->
+	    match s.[i] with
+	    | '0' -> false
+	    | '1' -> true
+	    | _ -> invalid_arg "Bitstring.of_string expects a sequence of \
+				zeroes and ones."
+	end

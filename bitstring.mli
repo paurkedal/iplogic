@@ -25,6 +25,7 @@ val get8 : int -> t -> int
 val get16 : int -> t -> int
 
 val empty : t
+val singleton : bool -> t
 
 val init : int -> (int -> bool) -> t
 val init8 : int -> (int -> int) -> t
@@ -36,9 +37,17 @@ val foldi : (int -> bool -> 'a -> 'a) -> t -> 'a -> 'a
 val foldi8 : (int -> int -> 'a -> 'a) -> t -> 'a -> 'a
 val foldi16 : (int -> int -> 'a -> 'a) -> t -> 'a -> 'a
 
+val iteri : (int -> bool -> unit) -> t -> unit
+val iteri8 : (int -> int -> unit) -> t -> unit
+val iteri16 : (int -> int -> unit) -> t -> unit
+
 val cat : t -> t -> t
 
 val slice : int -> int -> t -> t
 val prefix : int -> t -> t
 val common_prefix_length : t -> t -> int
 val common_prefix : t -> t -> t
+val common_prefix_length_from : int -> t -> int -> t -> int
+
+val to_string : t -> string
+val of_string : string -> t

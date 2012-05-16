@@ -15,6 +15,7 @@
  *)
 
 let ident x = x
+let konst x y = x
 let (|<) f g x = f (g x)
 
 module Option = struct
