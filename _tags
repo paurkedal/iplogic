@@ -1,1 +1,2 @@
 true: package(bigarray)
+<iplogic/*.cmx>: for-pack(Iplogic)

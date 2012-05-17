@@ -1,0 +1,9 @@
+version = "0.1"
+description = "A domain specific language for firewall scripts."
+
+package "iplogic" (
+    requires = "bigarray"
+    description = "Iplogic library"
+    archive(byte) = "iplogic.cma"
+    archive(native) = "iplogic.cmxa"
+)

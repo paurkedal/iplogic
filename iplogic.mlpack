@@ -1,0 +1,11 @@
+iplogic/ipl_iptables
+iplogic/ipl_lexer
+iplogic/ipl_parser
+iplogic/ipl_passes
+iplogic/ipl_types
+
+iplogic/bitstring
+iplogic/diag
+iplogic/pervasive
+iplogic/prefixset
+iplogic/shell_monoid

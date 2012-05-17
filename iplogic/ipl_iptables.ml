@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-open Iplogic_types
+open Ipl_types
 open Shell_monoid
 
 let (>>) x y = SL[x; y]

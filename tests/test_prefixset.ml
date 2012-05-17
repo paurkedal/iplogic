@@ -15,7 +15,8 @@
  *)
 
 open Printf
-open Pervasive
+open Iplogic
+open Iplogic.Pervasive
 
 let (===) = Prefixset.equal
 

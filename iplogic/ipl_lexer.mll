@@ -15,8 +15,8 @@
  *)
 
 {
-open Iplogic_types
-open Iplogic_parser
+open Ipl_types
+open Ipl_parser
 open Printf
 
 let get_loc () = Parsing.symbol_start_pos ()

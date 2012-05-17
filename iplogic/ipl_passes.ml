@@ -15,7 +15,7 @@
  *)
 
 open Pervasive
-open Iplogic_types
+open Ipl_types
 module String_map = Map.Make (String)
 
 module Env =

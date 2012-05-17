@@ -18,6 +18,7 @@ open Ocamlbuild_plugin
 
 let () = dispatch begin function
     | Before_options ->
-	Options.use_ocamlfind := true
+	Options.use_ocamlfind := true;
+	Options.make_links := false
     | _ -> ()
 end

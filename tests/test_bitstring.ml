@@ -15,6 +15,7 @@
  *)
 
 open Printf
+open Iplogic
 
 let maxdim = 256
 
