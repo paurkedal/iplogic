@@ -6,5 +6,6 @@ iplogic_types
 
 bitstring
 diag
+prefixset
 pervasive
 shell_monoid
