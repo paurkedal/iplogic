@@ -6,6 +6,7 @@ iplogic/ipl_types
 
 iplogic/bitstring
 iplogic/diag
+iplogic/ipaddr
 iplogic/pervasive
 iplogic/prefixset
 iplogic/shell_monoid
