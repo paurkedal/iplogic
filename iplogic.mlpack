@@ -3,6 +3,7 @@ iplogic/ipl_lexer
 iplogic/ipl_parser
 iplogic/ipl_passes
 iplogic/ipl_types
+iplogic/ipl_utils
 
 iplogic/bitstring
 iplogic/diag

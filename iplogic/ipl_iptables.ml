@@ -24,12 +24,11 @@ let decision_to_string = function
   | Reject -> "REJECT"
   | Drop -> "DROP"
 
-let value_to_string ?(quote = false) = function
+let value_to_string ?(v6 = false) ?(quote = false) = function
   | Value_int i -> string_of_int i
   | Value_string s -> if quote then "\"" ^ (String.escaped s) ^ "\"" else s
-  | Value_net s -> s
+  | Value_ipaddrs addrs -> Ipaddr.ipaddrs_to_string ~v6 addrs
   | Value_dnsname s -> s
-  | Value_device s | Value_protocol s -> s
 
 let rec expr_to_string ?(quote = false) = function
   | Expr_var _ -> invalid_arg "Variables should have been expanded."

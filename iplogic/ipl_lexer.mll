@@ -17,6 +17,7 @@
 {
 open Ipl_types
 open Ipl_parser
+open Ipaddr
 open Printf
 
 let get_loc () = Parsing.symbol_start_pos ()
@@ -80,8 +81,8 @@ let dnsdomain = (dnslabel '.')+ dnslabel_tld
 rule lexfunc = parse
   | '\n' { next_line lexbuf; lexfunc lexbuf }
   | '#' [^ '\n']* | [' ' '\t'] { lexfunc lexbuf }
-  | ipv6addr ('/' digit+)? as s { VALUE (Value_net s) }
-  | ipv4addr ('/' digit+)? as s { VALUE (Value_net s) }
+  | ipv6addr ('/' digit+)? as s { VALUE (Value_ipaddrs (ipaddrs_of_string s)) }
+  | ipv4addr ('/' digit+)? as s { VALUE (Value_ipaddrs (ipaddrs_of_string s)) }
   | dnsdomain as s { VALUE (Value_dnsname s) }
   | digit+ as s { VALUE (Value_int (int_of_string s)) }
   | '"' (([^ '\\' '"'] | '\\' _)* as s) '"' { VALUE (Value_string s) }

@@ -19,18 +19,13 @@ type loc = Lexing.position
 type vtype =
    | Vtype_int
    | Vtype_string
-   | Vtype_net
-   | Vtype_device
-   | Vtype_protocol
-   | Vtype_set
+   | Vtype_ipaddrs
 
 type value =
    | Value_int of int
    | Value_string of string
-   | Value_net of string
+   | Value_ipaddrs of Ipaddr.ipaddrs
    | Value_dnsname of string
-   | Value_device of string
-   | Value_protocol of string
 
 type expr =
    | Expr_var of loc * string

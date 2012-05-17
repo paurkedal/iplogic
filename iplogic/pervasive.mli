@@ -22,6 +22,12 @@ module Option : sig
     val iter : ('a -> unit) -> 'a option -> unit
 end
 
+module Array : sig
+    include module type of Array
+
+    val fold : ('a -> 'b -> 'b) -> 'a array -> 'b -> 'b
+end
+
 module List : sig
     include module type of List
 

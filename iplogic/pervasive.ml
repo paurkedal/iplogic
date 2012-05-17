@@ -24,6 +24,12 @@ module Option = struct
       | Some x -> f x
 end
 
+module Array = struct
+    include Array
+
+    let rec fold f arr acc = fold_left (fun acc x -> f x acc) acc arr
+end
+
 module List = struct
     include List
 

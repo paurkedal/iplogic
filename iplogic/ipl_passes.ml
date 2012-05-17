@@ -15,13 +15,15 @@
  *)
 
 open Pervasive
+open Diag
 open Ipl_types
+open Ipl_utils
 module String_map = Map.Make (String)
 
 module Env =
   struct
     type t = {
-	emap : expr String_map.t;
+	emap : (vtype * expr) String_map.t;
 	cmap : cond String_map.t;
 	chmap : chain String_map.t;
     }
@@ -45,8 +47,42 @@ module Env =
 	| Not_found -> Diag.failf ~loc "Condition %s is not defined." cn
   end
 
+let rec check_expr env = function
+  | Expr_var (loc, en) -> fst (Env.lookup_expr loc en env)
+  | Expr_value (loc, v) -> value_type v
+  | Expr_isecn (loc, e0, e1) | Expr_union (loc, e0, e1)
+  | Expr_compl (loc, e0, e1) ->
+    let e0t = check_expr env e0 in
+    let e1t = check_expr env e1 in
+    if e0t <> e1t then
+	failf ~loc "Incompatible types %s and %s in set expression."
+	    (vtype_to_string e0t) (vtype_to_string e1t);
+    e0t
+  | Expr_range (loc, e0, e1) ->
+    begin match value_type e0, value_type e1 with
+    | Vtype_int, Vtype_int -> Vtype_int
+    | _ -> failf ~loc "Expected integers in range expression."
+    end
+
+let rec denote_ipaddrs = function
+  | Expr_isecn (_, e0, e1) ->
+    Prefixset.isecn (denote_ipaddrs e0) (denote_ipaddrs e1)
+  | Expr_union (_, e0, e1) ->
+    Prefixset.union (denote_ipaddrs e0) (denote_ipaddrs e1)
+  | Expr_compl (_, e0, e1) ->
+    Prefixset.compl (denote_ipaddrs e0) (denote_ipaddrs e1)
+  | Expr_value (_, Value_ipaddrs addrs) -> addrs
+  | Expr_value (loc, Value_dnsname dnsname) -> resolve loc dnsname
+  | Expr_value _ | Expr_range _ | Expr_var _ -> assert false
+
+let simplify_expr = function
+  | Vtype_int -> ident
+  | Vtype_string -> ident
+  | Vtype_ipaddrs ->
+    fun e -> Expr_value (expr_loc e, Value_ipaddrs (denote_ipaddrs e))
+
 let rec pass1_expr env = function
-  | Expr_var (loc, en) -> Env.lookup_expr loc en env
+  | Expr_var (loc, en) -> snd (Env.lookup_expr loc en env)
   | Expr_value _ | Expr_range _ as e -> e
   | Expr_isecn (loc, e0, e1) ->
     Expr_isecn (loc, pass1_expr env e0, pass1_expr env e1)
@@ -54,6 +90,10 @@ let rec pass1_expr env = function
     Expr_union (loc, pass1_expr env e0, pass1_expr env e1)
   | Expr_compl (loc, e0, e1) ->
     Expr_compl (loc, pass1_expr env e0, pass1_expr env e1)
+
+let pass1s_expr env e =
+    let et = check_expr env e in
+    simplify_expr et (pass1_expr env e)
 
 let rec pass1_cond env = function
   | Cond_true _ as c -> c
@@ -64,7 +104,7 @@ let rec pass1_cond env = function
   | Cond_not (loc, c) ->
     Cond_not (loc, pass1_cond env c)
   | Cond_flag (loc, flag, e) ->
-    Cond_flag (loc, flag, pass1_expr env e)
+    Cond_flag (loc, flag, pass1s_expr env e)
   | Cond_call (loc, cn) ->
     Env.lookup_cond loc cn env
 
@@ -80,13 +120,15 @@ let rec pass1_chain = function
     let ch', env' = pass1_chain ch env in
     Chain_call (loc, chn, ch'), env'
   | Chain_log (loc, opts, ch) -> fun env ->
-    let opts' = List.map (fun (opt, arg) -> (opt, pass1_expr env arg)) opts in
+    let opts' = List.map (fun (opt, arg) -> (opt, pass1s_expr env arg)) opts in
     let ch', env' = pass1_chain ch env in
     Chain_log (loc, opts', ch'), env'
 
 let pass1_def = function
   | Def_val (loc, en, e) -> fun env ->
-    Env.define_expr loc en (pass1_expr env e) env
+    let et = check_expr env e in
+    let e' = (simplify_expr et (pass1s_expr env e)) in
+    Env.define_expr loc en (et, e') env
   | Def_val_type _ -> failwith "Value declarations are not implemented."
   | Def_cond (loc, cn, c) -> fun env ->
     Env.define_cond loc cn (pass1_cond env c) env
