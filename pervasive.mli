@@ -33,6 +33,7 @@ module Char : sig
 
     val is_space : char -> bool
     val is_digit : char -> bool
+    val is_xdigit : char -> bool
     val is_lower : char -> bool
     val is_upper : char -> bool
     val is_alpha : char -> bool
@@ -58,6 +59,8 @@ module Int : sig
     type t = int
 
     val compare : int -> int -> int
+
+    val floor_log2 : int -> int
 
     val bitcount : int -> int
 end

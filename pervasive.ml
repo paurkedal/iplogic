@@ -40,6 +40,8 @@ module Char = struct
 	| _ -> false
 
     let is_digit ch = '0' <= ch && ch <= '9'
+    let is_xdigit ch = is_digit ch || 'a' <= ch && ch <= 'f'
+				   || 'A' <= ch && ch <= 'F'
     let is_lower ch = 'a' <= ch && ch <= 'z'
     let is_upper ch = 'A' <= ch && ch <= 'Z'
     let is_alpha ch = is_lower ch || is_upper ch
@@ -85,6 +87,14 @@ module Int = struct
     type t = int
 
     let compare = compare
+
+    let floor_log2 n =
+	let rec loop j n l =
+	    if j = 0 then (assert (n = 1); l) else
+	    if n lsr j = 0 then loop (j / 2) n l else
+	    loop (j / 2) (n lsr j) (l + j) in
+	if n <= 0 then invalid_arg "floor_log2 on non-positive argument." else
+	loop 32 n 0 (* supports up to 64 bits *)
 
     let bitcount16 n =
 	let n = (n land 0x5555) + ((n lsr 1) land 0x5555) in

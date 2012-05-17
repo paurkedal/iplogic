@@ -21,14 +21,14 @@ let maxdim = 256
 let bool_array_get8 i data =
     let rec loop j x =
 	if j < 0 then x else
-	let bit = if Array.get data (i * 8 + j) then 1 else 0 in
+	let bit = if Array.get data (i * 8 + 7 - j) then 1 else 0 in
 	loop (j - 1) (2 * x + bit) in
     loop 7 0
 
 let bool_array_get16 i data =
     let rec loop j x =
 	if j < 0 then x else
-	let bit = if Array.get data (i * 16 + j) then 1 else 0 in
+	let bit = if Array.get data (i * 16 + 15 - j) then 1 else 0 in
 	loop (j - 1) (2 * x + bit) in
     loop 15 0
 
