@@ -98,6 +98,13 @@ let test () =
     assert (n = Bitstring.common_prefix_length bs bsAB);
     assert (Bitstring.equal bs bsAB);
 
+    let bsP = Bitstring.common_prefix bsA bsB in
+    assert (Bitstring.has_prefix bsP bsA);
+    assert (Bitstring.has_prefix bsP bsB);
+    let nP = Bitstring.length bsP in
+    if nP < Bitstring.length bsA then
+	assert (not (Bitstring.has_prefix (Bitstring.prefix (nP + 1) bsA) bsB));
+
     let bsA' = Bitstring.prefix nA bs in
     assert (Bitstring.equal bsA bsA');
     let bsB' = Bitstring.slice nA n bs in

@@ -31,6 +31,10 @@ val init : int -> (int -> bool) -> t
 val init8 : int -> (int -> int) -> t
 val init16 : int -> (int -> int) -> t
 
+val of_list : bool list -> t
+val of_list8 : int list -> t
+val of_list16 : int list -> t
+
 val equal : t -> t -> bool
 
 val foldi : (int -> bool -> 'a -> 'a) -> t -> 'a -> 'a
@@ -42,6 +46,8 @@ val iteri8 : (int -> int -> unit) -> t -> unit
 val iteri16 : (int -> int -> unit) -> t -> unit
 
 val cat : t -> t -> t
+
+val has_prefix : t -> t -> bool
 
 val slice : int -> int -> t -> t
 val prefix : int -> t -> t

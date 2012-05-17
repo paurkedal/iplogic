@@ -56,6 +56,45 @@ let init n f =
     if nlast <> 0 then Array1.set a ilast (mk16 nlast (n - 1) 0);
     (a, n)
 
+let of_list16 xs =
+    let m = List.length xs in
+    let a = Array1.create int16_unsigned c_layout m in
+    let xs_r = ref xs in
+    for i = 0 to m - 1 do
+	match !xs_r with
+	  | x :: xs -> Array1.set a i x; xs_r := xs
+	  | [] -> assert false
+    done;
+    assert (!xs_r = []);
+    (a, 16*m)
+
+let of_list8 xs =
+    let m8 = List.length xs in
+    let m = (m8 + 1) / 2 in
+    let a = Array1.create int16_unsigned c_layout m in
+    let xs_r = ref xs in
+    for i = 0 to m - 1 do
+	match !xs_r with
+	  | x0 :: x1 :: xs ->
+	    Array1.set a i ((x1 lsl 8) lor x0);
+	    xs_r := xs
+	  | [x0] ->
+	    Array1.set a i x0;
+	    xs_r := []
+	  | [] -> assert false
+    done;
+    assert (!xs_r = []);
+    (a, 8*m8)
+
+let of_list xs =
+    let xs_r = ref xs in
+    init (List.length xs)
+	begin fun _ ->
+	    match !xs_r with
+	      | x :: xs -> xs_r := xs; x
+	      | [] -> assert false
+	end
+
 let singleton_false = init 1 (konst false)
 let singleton_true  = init 1 (konst true)
 let singleton = function false -> singleton_false | true -> singleton_true
@@ -147,6 +186,17 @@ let cat (a0, n0) (a1, n1) =
 	end;
 	(a, n)
     end
+
+let has_prefix (aP, nP) (a, n) =
+    if nP > n then false else
+    let mP = nP / 16 in
+    let rec loop16 k =
+	if k = mP then true else
+	if Array1.get aP k <> Array1.get a k then false else
+	loop16 (k + 1) in
+    if not (loop16 0) then false else
+    if 16*mP = nP then true else
+    (Array1.get aP mP lxor Array1.get a mP) land (1 lsl (nP mod 16) - 1) = 0
 
 let prefix n' (a, n) =
     if n' = n then (a, n) else
