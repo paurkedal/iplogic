@@ -30,7 +30,7 @@ let parse_error s =
 	    s
 %}
 
-%token VAL COND CHAIN IF FAIL RETURN CALL GOTO LOG
+%token VAL CON CHAIN IF FAIL RETURN CALL GOTO LOG
 %token<Ipl_types.decision> DECISION
 %token<string> NAME FLAG
 %token<Ipl_types.value> VALUE
@@ -51,7 +51,7 @@ decls:
     /* empty */ { [] }
   | decls VAL NAME IS vexpr { Def_val (get_loc (), $3, $5) :: $1 }
   | decls VAL NAME COLON vtype { Def_val_type (get_loc (), $3, $5) :: $1 }
-  | decls COND NAME IS condition { Def_cond (get_loc (), $3, $5) :: $1 }
+  | decls CON NAME IS condition { Def_cond (get_loc (), $3, $5) :: $1 }
   | decls CHAIN NAME predicate { Def_chain (get_loc (), $3, $4) :: $1 }
   | decls error { $1 }
   ;

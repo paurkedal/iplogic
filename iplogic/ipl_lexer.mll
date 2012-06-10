@@ -40,7 +40,7 @@ let next_line lexbuf =
 let keywords =
     let entries = [
         "val", VAL;
-	"cond", COND;
+	"con", CON;
 	"is", IS;
 	"chain", CHAIN;
 
