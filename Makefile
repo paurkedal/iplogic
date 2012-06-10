@@ -1,8 +1,11 @@
 top_srcdir = $(shell pwd)
 builddir = _build
+INSTALL_SUDO =
 OCAMLBUILD = ocamlbuild
 OCAMLFIND = ocamlfind
-INSTALL_WRAPPER =
+OCAML_INSTALL = $(INSTALL_SUDO) $(OCAMLFIND) install
+OCAML_REMOVE = $(INSTALL_SUDO) $(OCAMLFIND) remove
+OCAML_INSTALL_OPTIONS =
 exe = byte
 
 -include Makefile.config
@@ -42,10 +45,10 @@ clean:
 	$(OCAMLBUILD) -clean
 
 install: all
-	$(INSTALL_WRAPPER) $(OCAMLFIND) remove iplogic 2>/dev/null || :
-	$(INSTALL_WRAPPER) $(OCAMLFIND) install iplogic $(INSTFILES)
+	$(OCAML_REMOVE) iplogic $(OCAML_INSTALL_OPTIONS) 2>/dev/null || :
+	$(OCAML_INSTALL) iplogic $(OCAML_INSTALL_OPTIONS) $(INSTFILES)
 uninstall:
-	$(INSTALL_WRAPPER) $(OCAMLFIND) remove iplogic
+	$(OCAML_REMOVE) iplogic $(OCAML_INSTALL_OPTIONS)
 
 $(ocamlbuild_stamp): $(ocaml_SOURCES) $(ocaml_PACKS)
 	$(OCAMLBUILD) -use-ocamlfind $(ocaml_byte) $(ocaml_native)
