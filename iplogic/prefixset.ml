@@ -44,7 +44,7 @@ let cY sL sR = match sL, sR with
 let rec valid = function
   | Top -> true
   | Bot -> true
-  | Y (Bot, Bot) -> false
+  | Y (Bot, _) | Y (_, Bot) -> false
   | Y (Top, Top) -> false
   | Y (s0, s1) -> valid s0 && valid s1
   | P (p, Bot) -> false
