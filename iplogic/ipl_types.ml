@@ -36,7 +36,7 @@ type expr =
    | Expr_range of loc * value * value
 
 type cond =
-   | Cond_true of loc
+   | Cond_const of loc * bool
    | Cond_and of loc * cond * cond
    | Cond_or of loc * cond * cond
    | Cond_not of loc * cond

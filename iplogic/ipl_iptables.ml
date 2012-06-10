@@ -42,7 +42,9 @@ let rec expr_to_string ?(quote = false) = function
 
 
 let rec emit_cond = function
-  | Cond_true _ -> AL []
+  | Cond_const (_, true) -> AL []
+  | Cond_const (_, false) ->
+    invalid_arg "False conditions should have been eliminated."
   | Cond_and (_, c0, c1) -> AL[emit_cond c0; emit_cond c1]
   | Cond_or _ -> invalid_arg "Disjunction should have been eliminated."
   | Cond_not (loc, c) ->
@@ -70,6 +72,10 @@ let emit_iptables qcn args =
     ])
 
 let rec emit_chain' qcn = function
+  | Chain_if (loc, Cond_const (_, true), cq, ccq) -> fun cond ->
+    emit_chain' qcn cq cond
+  | Chain_if (loc, Cond_const (_, false), cq, ccq) -> fun cond ->
+    emit_chain' qcn ccq cond
   | Chain_if (loc, cond', cq, ccq) -> fun cond ->
     emit_chain' qcn cq (Cond_and (loc, cond, cond')) >>
     emit_chain' qcn ccq cond
@@ -90,4 +96,4 @@ let rec emit_chain' qcn = function
     emit_chain' qcn cont cond
 
 let emit_chain qcn chain =
-    emit_chain' qcn chain (Cond_true Lexing.dummy_pos)
+    emit_chain' qcn chain (Cond_const (Lexing.dummy_pos, true))

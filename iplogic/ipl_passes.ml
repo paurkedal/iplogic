@@ -96,7 +96,7 @@ let pass1s_expr env e =
     simplify_expr et (pass1_expr env e)
 
 let rec pass1_cond env = function
-  | Cond_true _ as c -> c
+  | Cond_const _ as c -> c
   | Cond_and (loc, c0, c1) ->
     Cond_and (loc, pass1_cond env c0, pass1_cond env c1)
   | Cond_or (loc, c0, c1) ->

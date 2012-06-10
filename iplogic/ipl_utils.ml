@@ -28,7 +28,7 @@ let expr_loc = function
     -> loc
 
 let cond_loc = function
-  | Cond_true loc
+  | Cond_const (loc, _)
   | Cond_and (loc, _, _)
   | Cond_or (loc, _, _)
   | Cond_not (loc, _)

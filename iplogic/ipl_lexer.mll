@@ -54,6 +54,9 @@ let keywords =
 	"accept", DECISION Accept;
 	"reject", DECISION Reject;
 	"drop", DECISION Drop;
+
+	"true", BOOL true;
+	"false", BOOL false;
     ] in
     let ht = Hashtbl.create (List.length entries) in
     List.iter (fun (kw, tk) -> Hashtbl.add ht kw tk) entries;

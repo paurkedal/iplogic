@@ -34,6 +34,7 @@ let parse_error s =
 %token<Ipl_types.decision> DECISION
 %token<string> NAME FLAG
 %token<Ipl_types.value> VALUE
+%token<bool> BOOL
 %token EOF LPAREN RPAREN
 %token COLON IS NOT OR UNION INTER COMPL DOTS
 %left NOT
@@ -69,6 +70,7 @@ atomic_condition:
   | FLAG vexpr { Cond_flag (get_loc (), $1, $2) }
   | LPAREN condition RPAREN { $2 }
   | NAME { Cond_call (get_loc (), $1) }
+  | BOOL { Cond_const (get_loc (), $1) }
   ;
 
 vtype: NAME { $1 };
