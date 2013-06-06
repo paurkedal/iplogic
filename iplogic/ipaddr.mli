@@ -1,4 +1,4 @@
-(* Copyright (C) 2012  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-type ipaddr = Bitstring.t
+type ipaddr = Bitpath.t
 
 val ipaddr_of_string : string -> ipaddr
 
@@ -22,7 +22,7 @@ val ipaddr_is_v4 : ipaddr -> bool
 val ipaddr_to_v4string : ipaddr -> string
 val ipaddr_to_v6string : ipaddr -> string
 
-type ipaddrs = Prefixset.t
+type ipaddrs = Bitpath_cover.t
 
 val ipaddrs_of_string : string -> ipaddrs
 val ipaddrs_to_v4string : ipaddrs -> string

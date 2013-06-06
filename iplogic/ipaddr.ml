@@ -1,4 +1,4 @@
-(* Copyright (C) 2012  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,13 @@ open Scanf
 open Printf
 open Pervasive
 
-type ipaddr = Bitstring.t
-type ipaddrs = Prefixset.t
+type ipaddr = Bitpath.t
+type ipaddrs = Bitpath_cover.t
 
 let ipv4_prefix =
-    Bitstring.of_list16 [0; 0; 0; 0; 0; 0xffff]
+  Bitpath.of_array16 [|0; 0; 0; 0; 0; 0xffff|]
 
-let ipaddr_is_v4 = Bitstring.has_prefix ipv4_prefix
+let ipaddr_is_v4 = Bitpath.has_prefix ipv4_prefix
 
 let parse_ipv4_comps s =
     let check i =
@@ -39,7 +39,7 @@ let parse_ipv4_comps s =
     end
 
 let parse_ipv4 s =
-    Bitstring.of_list16 (0::0::0::0::0::0xffff::parse_ipv4_comps s)
+  Bitpath.of_array16 (Array.of_list (0::0::0::0::0::0xffff::parse_ipv4_comps s))
 
 let parse_ipv6 s =
     let n = String.length s in
@@ -71,7 +71,7 @@ let parse_ipv6 s =
 	    List.rev_append comps0 (pad n (List.rev comps1))
 	  | _ ->
 	    invalid_arg "IPv6 address cannot contain multiple ::-separators." in
-    Bitstring.of_list16 comps
+    Bitpath.of_array16 (Array.of_list comps)
 
 let ipaddr_of_string s =
     if String.contains s ':' then parse_ipv6 s
@@ -82,28 +82,28 @@ let ipaddr_to_v4string addr =
 	invalid_arg "Not an IPv4 address." else
     let buf = Buffer.create 15 in
     bprintf buf "%d.%d.%d.%d"
-	(Bitstring.get8 0 addr) (Bitstring.get8 1 addr)
-	(Bitstring.get8 2 addr) (Bitstring.get8 3 addr);
+	(Bitpath.get8 0 addr) (Bitpath.get8 1 addr)
+	(Bitpath.get8 2 addr) (Bitpath.get8 3 addr);
     Buffer.contents buf
 
 let ipaddr_to_v6string addr =
     let buf = Buffer.create 39 in
     (* TODO: Minimise addresses. *)
     bprintf buf "%x:%x:%x:%x:%x:%x:%x:%x"
-	(Bitstring.get16 0 addr) (Bitstring.get16 1 addr)
-	(Bitstring.get16 2 addr) (Bitstring.get16 3 addr)
-	(Bitstring.get16 4 addr) (Bitstring.get16 5 addr)
-	(Bitstring.get16 8 addr) (Bitstring.get16 7 addr);
+	(Bitpath.get16 0 addr) (Bitpath.get16 1 addr)
+	(Bitpath.get16 2 addr) (Bitpath.get16 3 addr)
+	(Bitpath.get16 4 addr) (Bitpath.get16 5 addr)
+	(Bitpath.get16 8 addr) (Bitpath.get16 7 addr);
     Buffer.contents buf
 
 let parse_cidr cidr =
     if not (String.contains cidr '/') then
-	Prefixset.of_prefix (ipaddr_of_string cidr) else
+	Bitpath_cover.of_prefix (ipaddr_of_string cidr) else
     let addr_s, n_s = String.split_on_last ((=) '/') cidr in
     try
 	let n = int_of_string n_s in
 	let addr = ipaddr_of_string addr_s in
-	Prefixset.of_prefix (Bitstring.prefix n addr)
+	Bitpath_cover.of_prefix (Bitpath.prefix n addr)
     with Failure _ -> invalid_arg (sprintf "Invalid CIDR adderss \"%s\"." cidr)
 
 let ipaddrs_of_string cidrs =
@@ -113,33 +113,33 @@ let ipaddrs_of_string cidrs =
 	let j = String.skip_until ((=) ',') cidrs i in
 	if i = j then invalid_arg "Empty element in address list." else
 	loop (j + 1)
-	     (Prefixset.union (parse_cidr (String.slice i j cidrs)) addrs) in
-    loop 0 Prefixset.empty
+	     (Bitpath_cover.union (parse_cidr (String.slice i j cidrs)) addrs) in
+    loop 0 Bitpath_cover.empty
 
 let ipaddrs_to_v4string c =
     let buf = Buffer.create 64 in
     let add_net addr =
 	let a = Array.make 4 0 in
-	Bitstring.iteri8 (fun i x -> Array.set a i x) addr;
+	Bitpath.iteri8 (fun i x -> Array.set a i x) addr;
 	if Buffer.length buf > 0 then Buffer.add_char buf ',';
 	bprintf buf "%d.%d.%d.%d" a.(0) a.(1) a.(2) a.(3);
-	if Bitstring.length addr < 32 then
-	    bprintf buf "/%d" (Bitstring.length addr) in
-    Prefixset.iter_prefixes add_net (Prefixset.follow ipv4_prefix c);
+	if Bitpath.length addr < 32 then
+	    bprintf buf "/%d" (Bitpath.length addr) in
+    Bitpath_cover.iter add_net (Bitpath_cover.zoom ipv4_prefix c);
     Buffer.contents buf
 
 let ipaddrs_to_v6string c =
     let buf = Buffer.create 64 in
     let add_net addr =
 	let a = Array.make 8 0 in
-	Bitstring.iteri16 (fun i x -> Array.set a i x) addr;
+	Bitpath.iteri16 (fun i x -> Array.set a i x) addr;
 	if Buffer.length buf > 0 then Buffer.add_char buf ',';
 	(* TODO: Minimise addresses. *)
 	bprintf buf "%x:%x:%x:%x:%x:%x:%x:%x"
 	    a.(0) a.(1) a.(2) a.(3) a.(4) a.(5) a.(6) a.(7);
-	if Bitstring.length addr < 128 then
-	    bprintf buf "/%d" (Bitstring.length addr) in
-    Prefixset.iter_prefixes add_net c;
+	if Bitpath.length addr < 128 then
+	    bprintf buf "/%d" (Bitpath.length addr) in
+    Bitpath_cover.iter add_net c;
     Buffer.contents buf
 
 let ipaddrs_to_string ?(v6 = false) c =

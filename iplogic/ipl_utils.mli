@@ -1,4 +1,4 @@
-(* Copyright (C) 2012  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,4 +24,4 @@ val def_loc : def -> loc
 val value_type : value -> vtype
 val vtype_to_string : vtype -> string
 
-val resolve : loc -> string -> Prefixset.t
+val resolve : loc -> string -> Bitpath_cover.t

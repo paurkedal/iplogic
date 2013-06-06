@@ -1,4 +1,4 @@
-(* Copyright (C) 2012  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ let resolve loc name =
 	let add_addr inaddr =
 	    let addr = Ipaddr.ipaddrs_of_string
 			    (Unix.string_of_inet_addr inaddr) in
-	    Prefixset.union addr in
-	Array.fold add_addr h.Unix.h_addr_list Prefixset.empty
+	    Bitpath_cover.union addr in
+	Array.fold add_addr h.Unix.h_addr_list Bitpath_cover.empty
     with Not_found ->
 	failf ~loc "Failed to resolve %s." name

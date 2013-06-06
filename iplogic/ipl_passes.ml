@@ -1,4 +1,4 @@
-(* Copyright (C) 2012  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,11 +66,11 @@ let rec check_expr env = function
 
 let rec denote_ipaddrs = function
   | Expr_isecn (_, e0, e1) ->
-    Prefixset.isecn (denote_ipaddrs e0) (denote_ipaddrs e1)
+    Bitpath_cover.isecn (denote_ipaddrs e0) (denote_ipaddrs e1)
   | Expr_union (_, e0, e1) ->
-    Prefixset.union (denote_ipaddrs e0) (denote_ipaddrs e1)
+    Bitpath_cover.union (denote_ipaddrs e0) (denote_ipaddrs e1)
   | Expr_compl (_, e0, e1) ->
-    Prefixset.compl (denote_ipaddrs e0) (denote_ipaddrs e1)
+    Bitpath_cover.rel_compl (denote_ipaddrs e1) (denote_ipaddrs e0)
   | Expr_value (_, Value_ipaddrs addrs) -> addrs
   | Expr_value (loc, Value_dnsname dnsname) -> resolve loc dnsname
   | Expr_value _ | Expr_range _ | Expr_var _ -> assert false
