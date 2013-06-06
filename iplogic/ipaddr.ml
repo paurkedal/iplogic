@@ -16,7 +16,9 @@
 
 open Scanf
 open Printf
-open Pervasive
+open Unprime
+open Unprime_char
+open Unprime_string
 
 type ipaddr = Bitpath.t
 type ipaddrs = Bitpath_cover.t
@@ -97,13 +99,13 @@ let ipaddr_to_v6string addr =
     Buffer.contents buf
 
 let parse_cidr cidr =
-    if not (String.contains cidr '/') then
-	Bitpath_cover.of_prefix (ipaddr_of_string cidr) else
-    let addr_s, n_s = String.split_on_last ((=) '/') cidr in
+  match String.rcut_affix "/" cidr with
+  | None -> Bitpath_cover.of_prefix (ipaddr_of_string cidr)
+  | Some (addr_s, n_s) ->
     try
-	let n = int_of_string n_s in
-	let addr = ipaddr_of_string addr_s in
-	Bitpath_cover.of_prefix (Bitpath.prefix n addr)
+      let n = int_of_string n_s in
+      let addr = ipaddr_of_string addr_s in
+      Bitpath_cover.of_prefix (Bitpath.prefix n addr)
     with Failure _ -> invalid_arg (sprintf "Invalid CIDR adderss \"%s\"." cidr)
 
 let ipaddrs_of_string cidrs =

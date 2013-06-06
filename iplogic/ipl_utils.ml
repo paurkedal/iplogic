@@ -15,7 +15,7 @@
  *)
 
 open Ipl_types
-open Pervasive
+open Unprime_array
 open Diag
 
 let expr_loc = function

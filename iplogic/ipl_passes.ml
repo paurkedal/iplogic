@@ -14,10 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-open Pervasive
 open Diag
 open Ipl_types
 open Ipl_utils
+open Unprime
+open Unprime_list
 module String_map = Map.Make (String)
 
 module Env =

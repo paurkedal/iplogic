@@ -7,5 +7,4 @@ iplogic/ipl_utils
 
 iplogic/diag
 iplogic/ipaddr
-iplogic/pervasive
 iplogic/shell_monoid
