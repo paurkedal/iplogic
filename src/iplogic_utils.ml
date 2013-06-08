@@ -26,6 +26,7 @@ let expr_loc = function
   | Expr_union (loc, _, _)
   | Expr_compl (loc, _, _)
   | Expr_range (loc, _, _)
+  | Expr_cat (loc, _)
     -> loc
 
 let cond_loc = function

@@ -83,14 +83,15 @@ let dnslabel = alnum+ ('-'+ alnum+)*
 let dnslabel_tld = alpha alnum* ('-'+ alnum+)*
 let dnsdomain = (dnslabel '.')+ dnslabel_tld
 
-rule lexfunc = parse
-  | '\n' { next_line lexbuf; lexfunc lexbuf }
-  | '#' [^ '\n']* | [' ' '\t'] { lexfunc lexbuf }
+rule lexmain = parse
+  | '\n' { next_line lexbuf; lexmain lexbuf }
+  | '#' [^ '\n']* | [' ' '\t'] { lexmain lexbuf }
   | ipv6addr ('/' digit+)? as s { VALUE (Value_ipaddrs (ipaddrs_of_string s)) }
   | ipv4addr ('/' digit+)? as s { VALUE (Value_ipaddrs (ipaddrs_of_string s)) }
   | dnsdomain as s { VALUE (Value_dnsname s) }
   | digit+ as s { VALUE (Value_int (int_of_string s)) }
-  | '"' (([^ '\\' '"'] | '\\' _)* as s) '"' { VALUE (Value_string s) }
+  | '"' (([^ '\\' '"' '$'] | '\\' _)* as s) '"' { VALUE (Value_string s) }
+  | '"' { EXPR (lexstring (get_loc ()) [] lexbuf) }
   | '(' { LPAREN }
   | ')' { RPAREN }
   | '!' { NOT } | "or" { OR }
@@ -105,13 +106,20 @@ rule lexfunc = parse
   | _ as c
     {
         parse_error lexbuf (sprintf "Lexical error at '%c'." c);
-	lexfunc lexbuf
+	lexmain lexbuf
     }
+
+and lexstring loc frags = parse
+  | '"' { Expr_cat (loc, List.rev frags) }
+  | "${" (ident as x) "}"
+    { lexstring loc (Expr_var (get_loc (), x) :: frags) lexbuf }
+  | ([^ '\\' '"' '$'] | '\\' _)+ as s
+    { lexstring loc (Expr_value (get_loc (), Value_string s) :: frags) lexbuf }
 
 {
 open Lexing
 
-let rec parse lexbuf = start lexfunc lexbuf
+let rec parse lexbuf = start lexmain lexbuf
 
 let parse_file path =
     let chan = open_in path in

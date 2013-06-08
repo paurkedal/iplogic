@@ -35,6 +35,7 @@ let rec expr_to_string ?(quote = false) = function
     value_to_string ~quote x ^ ":" ^ value_to_string ~quote y
   | Expr_isecn _ -> invalid_arg "Intersections should have been eliminated."
   | Expr_compl _ -> invalid_arg "Complements should have been eliminated."
+  | Expr_cat (_, es) -> String.concat "" (List.map expr_to_string es)
 
 let rec emit_cond = function
   | Cond_const (_, true) -> AL []

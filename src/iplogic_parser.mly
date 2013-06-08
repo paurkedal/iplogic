@@ -34,6 +34,7 @@ let parse_error s =
 %token ACCEPT REJECT DROP ALTER
 %token<string> NAME FLAG
 %token<Iplogic_types.value> VALUE
+%token<Iplogic_types.expr> EXPR
 %token<bool> BOOL
 %token EOF LPAREN RPAREN
 %token COLON IS NOT OR UNION INTER COMPL DOTS
@@ -83,6 +84,7 @@ vexpr:
   | vexpr COMPL vexpr { Expr_compl (get_loc (), $1, $3) }
   ;
 atomic_vexpr:
+    EXPR { $1 }
   | VALUE { Expr_value (get_loc (), $1) }
   | VALUE DOTS VALUE { Expr_range (get_loc (), $1, $3) }
   | NAME { Expr_var (get_loc (), $1) }

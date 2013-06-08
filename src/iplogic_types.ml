@@ -36,6 +36,7 @@ type expr =
    | Expr_union of loc * expr * expr
    | Expr_compl of loc * expr * expr
    | Expr_range of loc * value * value
+   | Expr_cat of loc * expr list
 
 type cond =
    | Cond_const of loc * bool

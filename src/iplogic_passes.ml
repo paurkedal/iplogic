@@ -64,6 +64,7 @@ let rec check_expr env = function
     | Vtype_int, Vtype_int -> Vtype_int
     | _ -> failf ~loc "Expected integers in range expression."
     end
+  | Expr_cat (loc, es) -> Vtype_string
 
 let rec denote_ipaddrs = function
   | Expr_isecn (_, e0, e1) ->
@@ -74,7 +75,7 @@ let rec denote_ipaddrs = function
     Bitpath_cover.rel_compl (denote_ipaddrs e1) (denote_ipaddrs e0)
   | Expr_value (_, Value_ipaddrs addrs) -> addrs
   | Expr_value (loc, Value_dnsname dnsname) -> resolve loc dnsname
-  | Expr_value _ | Expr_range _ | Expr_var _ -> assert false
+  | Expr_value _ | Expr_range _ | Expr_var _ | Expr_cat _ -> assert false
 
 let simplify_expr = function
   | Vtype_int -> ident
@@ -91,6 +92,8 @@ let rec pass1_expr env = function
     Expr_union (loc, pass1_expr env e0, pass1_expr env e1)
   | Expr_compl (loc, e0, e1) ->
     Expr_compl (loc, pass1_expr env e0, pass1_expr env e1)
+  | Expr_cat (loc, es) ->
+    Expr_cat (loc, List.map (pass1_expr env) es)
 
 let pass1s_expr env e =
     let et = check_expr env e in
