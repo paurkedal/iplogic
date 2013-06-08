@@ -31,7 +31,7 @@ let parse_error s =
 %}
 
 %token VAL CON CHAIN IF FAIL RETURN CALL GOTO LOG
-%token<Iplogic_types.decision> DECISION
+%token ACCEPT REJECT DROP ALTER
 %token<string> NAME FLAG
 %token<Iplogic_types.value> VALUE
 %token<bool> BOOL
@@ -89,12 +89,15 @@ atomic_vexpr:
   ;
 
 predicate:
-    DECISION { Chain_decision (get_loc (), $1) }
+    ACCEPT { Chain_decision (get_loc (), Accept) }
+  | REJECT { Chain_decision (get_loc (), Reject) }
+  | DROP { Chain_decision (get_loc (), Drop) }
+  | ALTER NAME options { Chain_decision (get_loc (), Alter ($2, List.rev $3)) }
   | RETURN { Chain_return (get_loc ()) }
   | FAIL { Chain_fail (get_loc ()) }
   | GOTO NAME { Chain_goto (get_loc (), $2) }
   | CALL NAME predicate { Chain_call (get_loc (), $2, $3) }
-  | LOG options predicate { Chain_log (get_loc (), $2, $3) }
+  | LOG options predicate { Chain_log (get_loc (), List.rev $2, $3) }
   | IF condition predicate predicate { Chain_if (get_loc (), $2, $3, $4) }
   ;
 

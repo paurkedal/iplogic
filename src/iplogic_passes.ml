@@ -96,6 +96,9 @@ let pass1s_expr env e =
     let et = check_expr env e in
     simplify_expr et (pass1_expr env e)
 
+let pass1s_options env opts =
+  List.map (fun (opt, arg) -> (opt, pass1s_expr env arg)) opts
+
 let rec pass1_cond env = function
   | Cond_const _ as c -> c
   | Cond_and (loc, c0, c1) ->
@@ -115,15 +118,16 @@ let rec pass1_chain = function
     let cq', env' = pass1_chain cq env in
     let ccq', env'' = pass1_chain ccq env' in
     Chain_if (loc, c', cq', ccq'), env''
+  | Chain_decision (loc, Alter (tgt, opts)) -> fun env ->
+    Chain_decision (loc, Alter (tgt, pass1s_options env opts)), env
   | Chain_decision _ | Chain_return _ | Chain_fail _ | Chain_goto _ as r ->
     fun env -> r, env
   | Chain_call (loc, chn, ch) -> fun env ->
     let ch', env' = pass1_chain ch env in
     Chain_call (loc, chn, ch'), env'
   | Chain_log (loc, opts, ch) -> fun env ->
-    let opts' = List.map (fun (opt, arg) -> (opt, pass1s_expr env arg)) opts in
     let ch', env' = pass1_chain ch env in
-    Chain_log (loc, opts', ch'), env'
+    Chain_log (loc, pass1s_options env opts, ch'), env'
 
 let pass1_def = function
   | Def_val (loc, en, e) -> fun env ->

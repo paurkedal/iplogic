@@ -49,6 +49,7 @@ type decision =
    | Accept
    | Reject
    | Drop
+   | Alter of string * (string * expr) list
 
 type chain =
    | Chain_if of loc * cond * chain * chain

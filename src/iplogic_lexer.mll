@@ -51,9 +51,10 @@ let keywords =
 	"return", RETURN;
 	"fail", FAIL;
 
-	"accept", DECISION Accept;
-	"reject", DECISION Reject;
-	"drop", DECISION Drop;
+	"accept", ACCEPT;
+	"reject", REJECT;
+	"drop", DROP;
+	"alter", ALTER;
 
 	"true", BOOL true;
 	"false", BOOL false;
@@ -68,6 +69,7 @@ let alnum = ['a'-'z' 'A'-'Z' '0'-'9']
 let digit = ['0'-'9']
 let hexdigit = ['0'-'9' 'a'-'f' 'A'-'F']
 let ident = ['a'-'z' 'A'-'Z' '_'] ['a'-'z' 'A'-'Z' '_' '0'-'9']*
+let flagident = ['a'-'z' 'A'-'Z'] ['a'-'z' 'A'-'Z' '-' '0'-'9']*
 let ipv6comp = hexdigit (hexdigit (hexdigit hexdigit?)?)?
 let ipv4addr = digit+ '.' digit+ '.' digit+ '.' digit+
 let ipv6addr =
@@ -94,7 +96,7 @@ rule lexfunc = parse
   | '!' { NOT } | "or" { OR }
   | '\\' { COMPL } | '&' { INTER } | ',' { UNION }
   (*| '=' | "<=" | ">=" | "<" | ">" as op { R op }*)
-  | '-' alnum | "--" ident as s { FLAG s }
+  | '-' alnum | "--" flagident as s { FLAG s }
   | ident ':' digit+ as s { NAME s }
   | ident as s { try Hashtbl.find keywords s with Not_found -> NAME s }
   | ':' { COLON }

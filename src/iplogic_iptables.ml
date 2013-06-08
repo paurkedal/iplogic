@@ -20,11 +20,6 @@ open Shell_monoid
 
 let (>>) x y = SL[x; y]
 
-let decision_to_string = function
-  | Accept -> "ACCEPT"
-  | Reject -> "REJECT"
-  | Drop -> "DROP"
-
 let value_to_string ?(v6 = false) ?(quote = false) = function
   | Value_int i -> string_of_int i
   | Value_string s -> if quote then "\"" ^ (String.escaped s) ^ "\"" else s
@@ -41,7 +36,6 @@ let rec expr_to_string ?(quote = false) = function
   | Expr_isecn _ -> invalid_arg "Intersections should have been eliminated."
   | Expr_compl _ -> invalid_arg "Complements should have been eliminated."
 
-
 let rec emit_cond = function
   | Cond_const (_, true) -> AL []
   | Cond_const (_, false) ->
@@ -54,6 +48,10 @@ let rec emit_cond = function
     AL [AV"!"; emit_cond c]
   | Cond_flag (_, flag, expr) -> AL[AV flag; AQ (expr_to_string expr)]
   | Cond_call _ -> invalid_arg "Calls should have been inlined."
+
+let rec emit_options = function
+  | [] -> []
+  | (fl, v) :: opts -> AV fl :: AQ (expr_to_string v) :: emit_options opts
 
 let rec emit_logopts = function
   | ("level", expr) :: opts ->
@@ -80,9 +78,14 @@ let rec emit_chain' qcn = function
   | Chain_if (loc, cond', cq, ccq) -> fun cond ->
     emit_chain' qcn cq (Cond_and (loc, cond, cond')) >>
     emit_chain' qcn ccq cond
-  | Chain_decision (_, dec) -> fun cond ->
-    emit_iptables qcn (AL[AV"-j"; AQ (decision_to_string dec);
-				emit_cond cond])
+  | Chain_decision (_, Accept) -> fun cond ->
+    emit_iptables qcn (AL[AV"-j"; AV "ACCEPT"; emit_cond cond])
+  | Chain_decision (_, Alter (t, opts)) -> fun cond ->
+    emit_iptables qcn (AL[emit_cond cond; AV"-j"; AV t; AL(emit_options opts)])
+  | Chain_decision (_, Reject) -> fun cond ->
+    emit_iptables qcn (AL[AV"-j"; AV "REJECT"; emit_cond cond])
+  | Chain_decision (_, Drop) -> fun cond ->
+    emit_iptables qcn (AL[AV"-j"; AV "DROP"; emit_cond cond])
   | Chain_return loc -> fun cond ->
     emit_iptables qcn (AL[AV"-j"; AV "RETURN"; emit_cond cond])
   | Chain_fail loc -> fun _ -> failwith "The fail keyword is not implemented."
