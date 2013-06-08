@@ -9,7 +9,7 @@ Plugins: META (0.3), DevFiles (0.3)
 Library iplogic
   Path: src
   BuildTools: ocamlbuild
-  BuildDepends: bitpath, prime
+  BuildDepends: bitpath, prime, unix
   Modules:
     Iplogic_address,
     Iplogic_diag,
