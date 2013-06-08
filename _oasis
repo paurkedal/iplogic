@@ -21,6 +21,14 @@ Library iplogic
     Iplogic_utils,
     Shell_monoid
 
+Executable "iplogic-compile"
+  Path: bin
+  BuildTools: ocamlbuild
+  BuildDepends: iplogic, pcre
+  Install: true
+  MainIs: iplogic_compile.ml
+  CompiledObject: best
+
 Executable simplify_cidrs
   Path: tests
   BuildTools: ocamlbuild
