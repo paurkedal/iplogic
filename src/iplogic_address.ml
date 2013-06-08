@@ -105,7 +105,8 @@ let parse_cidr cidr =
     try
       let n = int_of_string n_s in
       let addr = ipaddr_of_string addr_s in
-      Bitpath_cover.of_prefix (Bitpath.prefix n addr)
+      let n' = if String.contains addr_s ':' then n else n + 96 in
+      Bitpath_cover.of_prefix (Bitpath.prefix n' addr)
     with Failure _ -> invalid_arg (sprintf "Invalid CIDR adderss \"%s\"." cidr)
 
 let ipaddrs_of_string cidrs =
