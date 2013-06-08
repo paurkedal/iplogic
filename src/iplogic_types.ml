@@ -65,4 +65,4 @@ type def =
    | Def_val of loc * string * expr
    | Def_val_type of loc * string * string
    | Def_cond of loc * string * cond
-   | Def_chain of loc * string * chain
+   | Def_chain of loc * string * string * chain

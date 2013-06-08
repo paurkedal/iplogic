@@ -26,7 +26,7 @@ module Env =
     type t = {
 	emap : (vtype * expr) String_map.t;
 	cmap : cond String_map.t;
-	chmap : chain String_map.t;
+	chmap : chain String_map.t String_map.t;
     }
     let empty = {
 	emap = String_map.empty;
@@ -34,11 +34,15 @@ module Env =
 	chmap = String_map.empty;
     }
     let define_expr loc en e env =
-	{env with emap = String_map.add en e env.emap}
+      {env with emap = String_map.add en e env.emap}
     let define_cond loc cn c env =
-	{env with cmap = String_map.add cn c env.cmap}
-    let define_chain loc chn ch env =
-	{env with chmap = String_map.add chn ch env.chmap}
+      {env with cmap = String_map.add cn c env.cmap}
+    let define_chain loc tn chn ch env =
+      let chmap' =
+	let tm = try String_map.find tn env.chmap
+		 with Not_found -> String_map.empty in
+	String_map.add tn (String_map.add chn ch tm) env.chmap in
+      {env with chmap = chmap'}
 
     let lookup_expr loc en env =
 	try String_map.find en env.emap with
@@ -140,10 +144,15 @@ let pass1_def = function
   | Def_val_type _ -> failwith "Value declarations are not implemented."
   | Def_cond (loc, cn, c) -> fun env ->
     Env.define_cond loc cn (pass1_cond env c) env
-  | Def_chain (loc, chn, ch) -> fun env ->
+  | Def_chain (loc, tn, chn, ch) -> fun env ->
     let ch', env' = pass1_chain ch env in
-    Env.define_chain loc chn ch' env'
+    Env.define_chain loc tn chn ch' env'
 
 let compile defs =
     let env = List.fold pass1_def defs Env.empty in
-    String_map.bindings env.Env.chmap
+    List.rev
+      (String_map.fold
+	(fun tn tm ->
+	  String_map.fold (fun chn chd acc -> (tn, chn, chd) :: acc) tm)
+	env.Env.chmap
+	[])

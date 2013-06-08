@@ -28,6 +28,8 @@ let parse_error s =
 	    loc0.Lexing.pos_lnum (loc0.Lexing.pos_cnum - loc0.Lexing.pos_bol)
 	    loc1.Lexing.pos_lnum (loc1.Lexing.pos_cnum - loc1.Lexing.pos_bol)
 	    s
+
+let default_table = ref "filter"
 %}
 
 %token VAL CON CHAIN IF FAIL RETURN CALL GOTO LOG
@@ -54,7 +56,9 @@ decls:
   | decls VAL NAME IS vexpr { Def_val (get_loc (), $3, $5) :: $1 }
   | decls VAL NAME COLON vtype { Def_val_type (get_loc (), $3, $5) :: $1 }
   | decls CON NAME IS condition { Def_cond (get_loc (), $3, $5) :: $1 }
-  | decls CHAIN NAME predicate { Def_chain (get_loc (), $3, $4) :: $1 }
+  | decls CHAIN NAME NAME predicate {Def_chain (get_loc (), $3, $4, $5) :: $1}
+  | decls CHAIN NAME predicate
+    { Def_chain (get_loc (), !default_table, $3, $4) :: $1 }
   | decls error { $1 }
   ;
 
