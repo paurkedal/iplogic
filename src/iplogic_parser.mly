@@ -15,7 +15,7 @@
  */
 
 %{
-open Ipl_types
+open Iplogic_types
 open Printf
 
 let get_loc () = Parsing.symbol_start_pos ()
@@ -31,9 +31,9 @@ let parse_error s =
 %}
 
 %token VAL CON CHAIN IF FAIL RETURN CALL GOTO LOG
-%token<Ipl_types.decision> DECISION
+%token<Iplogic_types.decision> DECISION
 %token<string> NAME FLAG
-%token<Ipl_types.value> VALUE
+%token<Iplogic_types.value> VALUE
 %token<bool> BOOL
 %token EOF LPAREN RPAREN
 %token COLON IS NOT OR UNION INTER COMPL DOTS
@@ -42,7 +42,7 @@ let parse_error s =
 %left UNION COMPL
 %left INTER
 
-%type<Ipl_types.def list> start
+%type<Iplogic_types.def list> start
 %start start
 %%
 

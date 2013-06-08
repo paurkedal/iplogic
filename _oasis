@@ -1,0 +1,30 @@
+OASISFormat: 0.3
+Name: iplogic
+Version: 0.1
+Synopsis: Firewall script generator
+Authors: Petter A. Urkedal
+License: GPL-3
+Plugins: META (0.3), DevFiles (0.3)
+
+Library iplogic
+  Path: src
+  BuildTools: ocamlbuild
+  BuildDepends: bitpath, prime
+  Modules:
+    Iplogic_address,
+    Iplogic_diag,
+    Iplogic_iptables,
+    Iplogic_lexer,
+    Iplogic_parser,
+    Iplogic_passes,
+    Iplogic_types,
+    Iplogic_utils,
+    Shell_monoid
+
+Executable simplify_cidrs
+  Path: tests
+  BuildTools: ocamlbuild
+  BuildDepends: iplogic
+  Install: false
+  MainIs: simplify_cidrs.ml
+  CompiledObject: best

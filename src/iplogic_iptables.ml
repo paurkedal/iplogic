@@ -1,4 +1,4 @@
-(* Copyright (C) 2012  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-open Ipl_types
+open Iplogic_address
+open Iplogic_types
 open Shell_monoid
 
 let (>>) x y = SL[x; y]
@@ -27,7 +28,7 @@ let decision_to_string = function
 let value_to_string ?(v6 = false) ?(quote = false) = function
   | Value_int i -> string_of_int i
   | Value_string s -> if quote then "\"" ^ (String.escaped s) ^ "\"" else s
-  | Value_ipaddrs addrs -> Ipaddr.ipaddrs_to_string ~v6 addrs
+  | Value_ipaddrs addrs -> ipaddrs_to_string ~v6 addrs
   | Value_dnsname s -> s
 
 let rec expr_to_string ?(quote = false) = function

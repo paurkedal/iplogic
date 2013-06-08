@@ -1,4 +1,4 @@
-(* Copyright (C) 2012  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
+open Iplogic_address
+
 type loc = Lexing.position
 
 type vtype =
@@ -24,7 +26,7 @@ type vtype =
 type value =
    | Value_int of int
    | Value_string of string
-   | Value_ipaddrs of Ipaddr.ipaddrs
+   | Value_ipaddrs of ipaddrs
    | Value_dnsname of string
 
 type expr =

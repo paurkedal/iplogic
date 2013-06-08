@@ -1,1 +1,8 @@
-/_build/
+*.byte
+*.native
+/Makefile
+/_build
+/configure
+/setup.data
+/setup.log
+/setup.ml

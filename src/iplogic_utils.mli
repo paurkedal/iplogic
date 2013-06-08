@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-open Ipl_types
+open Iplogic_types
 
 val expr_loc : expr -> loc
 val cond_loc : cond -> loc

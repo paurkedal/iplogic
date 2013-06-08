@@ -1,4 +1,4 @@
-(* Copyright (C) 2012  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,19 +15,19 @@
  *)
 
 open Printf
-open Iplogic
+open Iplogic_address
 
 let simpl sP sN =
-    let s = Prefixset.compl sP sN in
-    let sP', sN' = Prefixset.compl_decomp s in
-    printf "%s ∖ %s\n"
-	(Ipaddr.ipaddrs_to_v6string sP') (Ipaddr.ipaddrs_to_v6string sN')
+  let s = Bitpath_cover.rel_compl sN sP in
+  let sN', sP' = Bitpath_cover.compl_decomp s in
+  printf "%s ∖ %s\n" (ipaddrs_to_v6string sP) (ipaddrs_to_v6string sN);
+  printf "%s ∖ %s\n" (ipaddrs_to_v6string sP') (ipaddrs_to_v6string sN')
 
 let () =
-    match Sys.argv with
-      | [|_; strP; strN|] ->
-	simpl (Ipaddr.ipaddrs_of_string strP) (Ipaddr.ipaddrs_of_string strN)
-      | [|_; strP|] ->
-	simpl (Ipaddr.ipaddrs_of_string strP) Prefixset.empty
-      | _ ->
-	eprintf "Wrong number of arguments.\n"; exit 64
+  match Sys.argv with
+  | [|_; strP; strN|] ->
+    simpl (ipaddrs_of_string strP) (ipaddrs_of_string strN)
+  | [|_; strP|] ->
+    simpl (ipaddrs_of_string strP) Bitpath_cover.empty
+  | _ ->
+    eprintf "Wrong number of arguments.\n"; exit 64

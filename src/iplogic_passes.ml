@@ -14,9 +14,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-open Diag
-open Ipl_types
-open Ipl_utils
+open Iplogic_diag
+open Iplogic_types
+open Iplogic_utils
 open Unprime
 open Unprime_list
 module String_map = Map.Make (String)
@@ -42,10 +42,10 @@ module Env =
 
     let lookup_expr loc en env =
 	try String_map.find en env.emap with
-	| Not_found -> Diag.failf ~loc "Value %s is not defined." en
+	| Not_found -> failf ~loc "Value %s is not defined." en
     let lookup_cond loc cn env =
 	try String_map.find cn env.cmap with
-	| Not_found -> Diag.failf ~loc "Condition %s is not defined." cn
+	| Not_found -> failf ~loc "Condition %s is not defined." cn
   end
 
 let rec check_expr env = function

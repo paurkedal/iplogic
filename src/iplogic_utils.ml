@@ -14,9 +14,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-open Ipl_types
+open Iplogic_address
+open Iplogic_types
 open Unprime_array
-open Diag
+open Iplogic_diag
 
 let expr_loc = function
   | Expr_var (loc, _)
@@ -67,8 +68,7 @@ let resolve loc name =
     try
 	let h = Unix.gethostbyname name in
 	let add_addr inaddr =
-	    let addr = Ipaddr.ipaddrs_of_string
-			    (Unix.string_of_inet_addr inaddr) in
+	    let addr = ipaddrs_of_string (Unix.string_of_inet_addr inaddr) in
 	    Bitpath_cover.union addr in
 	Array.fold add_addr h.Unix.h_addr_list Bitpath_cover.empty
     with Not_found ->
