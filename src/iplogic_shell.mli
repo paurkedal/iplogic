@@ -31,4 +31,4 @@ val pop_first_shell_arg : shell_args -> (shell_args * shell_args) option
 
 val output_shell_args : out_channel -> shell_args -> unit
 
-val output_shell_seq : out_channel -> shell_seq -> unit
+val output_shell_seq : ?prefix: string -> out_channel -> shell_seq -> unit

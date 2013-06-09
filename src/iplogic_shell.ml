@@ -60,6 +60,10 @@ let output_shell_args chan args =
     output_shell_args' ""  chan arg;
     output_shell_args' " " chan args
 
-let rec output_shell_seq chan = function
-  | SC c -> output_shell_args chan c; output_char chan '\n'
-  | SL sq -> List.iter (output_shell_seq chan) sq
+let rec output_shell_seq ?(prefix = "") chan = function
+  | SC c ->
+    output_string chan prefix;
+    output_shell_args chan c;
+    output_char chan '\n'
+  | SL sq ->
+    List.iter (output_shell_seq ~prefix chan) sq

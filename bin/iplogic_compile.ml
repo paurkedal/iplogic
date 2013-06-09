@@ -20,9 +20,9 @@ exception Invalid_substitution of string
 
 let set_string r = Arg.String (fun arg -> r := Some arg)
 
-let emit_rules_for_chain och (tn, chn, rules) =
+let emit_rules_for_chain prefix och (tn, chn, rules) =
   let commands = Iplogic_iptables.emit_chain (tn, chn) rules in
-  Iplogic_shell.output_shell_seq och commands
+  Iplogic_shell.output_shell_seq ~prefix och commands
 
 let template_rex = Pcre.regexp "@[A-Z]+@"
 
@@ -31,8 +31,8 @@ let emit_templated template_path och subst emit_rules =
   try
     while true do
       let ln = input_line ich in
-      if ln = "@RULES@" then
-	emit_rules och
+      if (String.trim ln) = "@RULES@" then
+	emit_rules (String.sub ln 0 (String.index ln '@')) och
       else begin
 	output_string och (Pcre.substitute ~rex:template_rex ~subst ln);
 	output_char och '\n'
@@ -46,10 +46,10 @@ let bad_subst x = eprintf "warning: No substitution for %s.\n" x; x
 
 let emit_monolithic ?template_path och chains =
   match template_path with
-  | None -> List.iter (emit_rules_for_chain och) chains
+  | None -> List.iter (emit_rules_for_chain "" och) chains
   | Some tp ->
     emit_templated tp och bad_subst
-	(fun och -> List.iter (emit_rules_for_chain och) chains)
+	(fun prefix och -> List.iter (emit_rules_for_chain prefix och) chains)
 
 let path_template_rex = Pcre.regexp "%[tc]"
 
@@ -66,10 +66,10 @@ let emit_by_chain ?template_path path_template =
       let och = open_out fp in
       begin match template_path with
       | None ->
-	emit_rules_for_chain och (tn, chn, rules)
+	emit_rules_for_chain "" och (tn, chn, rules)
       | Some tp ->
 	emit_templated tp och subst
-	    (fun och -> emit_rules_for_chain och (tn, chn, rules))
+	    (fun prefix och -> emit_rules_for_chain prefix och (tn, chn, rules))
       end;
       close_out och)
 
