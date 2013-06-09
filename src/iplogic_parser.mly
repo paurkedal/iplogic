@@ -30,7 +30,7 @@ let default_table = ref "filter"
 
 %token VAL CON CHAIN IF FAIL RETURN CALL GOTO LOG
 %token ACCEPT REJECT DROP ALTER
-%token<string> NAME FLAG
+%token<string> NAME FLAG STRING_START STRING_MID STRING_END
 %token<Iplogic_types.value> VALUE
 %token<Iplogic_types.expr> EXPR
 %token<bool> BOOL
@@ -83,10 +83,21 @@ vexpr:
   | vexpr INTER vexpr { Expr_isecn (lhs_loc (), $1, $3) }
   | vexpr COMPL vexpr { Expr_compl (lhs_loc (), $1, $3) }
   ;
+
+string_mid:
+  | vexpr { [$1] }
+  | string_mid STRING_MID vexpr
+    { $3 :: Expr_value (lhs_loc (), Value_string $2) :: $1 }
+  ;
+
 atomic_vexpr:
     EXPR { $1 }
   | VALUE { Expr_value (lhs_loc (), $1) }
   | VALUE DOTS VALUE { Expr_range (lhs_loc (), $1, $3) }
+  | STRING_START string_mid STRING_END
+    { let s1 = Expr_value (rhs_loc 1, Value_string $1) in
+      let s3 = Expr_value (rhs_loc 3, Value_string $3) in
+      Expr_cat (lhs_loc (), s1 :: (List.rev (s3 :: $2))) }
   | NAME { Expr_var (lhs_loc (), $1) }
   ;
 

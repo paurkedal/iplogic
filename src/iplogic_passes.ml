@@ -81,11 +81,18 @@ let rec denote_ipaddrs = function
   | Expr_value (loc, Value_dnsname dnsname) -> resolve loc dnsname
   | Expr_value _ | Expr_range _ | Expr_var _ | Expr_cat _ -> assert false
 
-let simplify_expr = function
+let rec simplify_expr env = function
   | Vtype_int -> ident
-  | Vtype_string -> ident
+  | Vtype_string ->
+    begin function
+    | Expr_cat (loc, es) ->
+      Expr_cat (loc, List.map (check_and_simplify_expr env) es)
+    | Expr_value (loc, v) as e -> e
+    | _ -> assert false
+    end
   | Vtype_ipaddrs ->
     fun e -> Expr_value (expr_loc e, Value_ipaddrs (denote_ipaddrs e))
+and check_and_simplify_expr env e = simplify_expr env (check_expr env e) e
 
 let rec pass1_expr env = function
   | Expr_var (loc, en) -> snd (Env.lookup_expr loc en env)
@@ -101,7 +108,7 @@ let rec pass1_expr env = function
 
 let pass1s_expr env e =
   let et = check_expr env e in
-  simplify_expr et (pass1_expr env e)
+  simplify_expr env et (pass1_expr env e)
 
 let pass1s_options env opts =
   List.map (fun (opt, arg) -> (opt, pass1s_expr env arg)) opts
@@ -139,7 +146,7 @@ let rec pass1_chain = function
 let pass1_def = function
   | Def_val (loc, en, e) -> fun env ->
     let et = check_expr env e in
-    let e' = (simplify_expr et (pass1s_expr env e)) in
+    let e' = (simplify_expr env et (pass1s_expr env e)) in
     Env.define_expr loc en (et, e') env
   | Def_val_type _ -> failwith "Value declarations are not implemented."
   | Def_cond (loc, cn, c) -> fun env ->

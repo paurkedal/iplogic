@@ -22,6 +22,12 @@ open Printf
 
 let get_loc lexbuf = (lexbuf.Lexing.lex_start_p, lexbuf.Lexing.lex_curr_p)
 
+type paren = Paren | Interp
+
+type state = {
+  mutable s_nesting : paren list;
+}
+
 let parse_error lexbuf s =
   Iplogic_diag.eprint_loc (get_loc lexbuf);
   prerr_string s; prerr_newline ()
@@ -32,6 +38,8 @@ let next_line lexbuf =
     Lexing.pos_lnum = pos.Lexing.pos_lnum + 1;
     Lexing.pos_bol = pos.Lexing.pos_cnum;
   }
+
+let unquote s = s
 
 let keywords =
   let entries = [
@@ -78,22 +86,29 @@ let ipv6addr =
 let dnslabel = alnum+ ('-'+ alnum+)*
 let dnslabel_tld = alpha alnum* ('-'+ alnum+)*
 let dnsdomain = (dnslabel '.')+ dnslabel_tld
+let stringdata = ([^ '\\' '"' '$'] | '\\' _)*
 
-rule lexmain = parse
-  | '\n' { next_line lexbuf; lexmain lexbuf }
-  | '#' [^ '\n']* | [' ' '\t'] { lexmain lexbuf }
+rule lexmain state = parse
+  | '\n' { next_line lexbuf; lexmain state lexbuf }
+  | '#' [^ '\n']* | [' ' '\t'] { lexmain state lexbuf }
   | ipv6addr ('/' digit+)? as s
     { try VALUE (Value_ipaddrs (ipaddrs_of_string s)) with
-      Invalid_argument msg -> parse_error lexbuf msg; lexmain lexbuf }
+      Invalid_argument msg -> parse_error lexbuf msg; lexmain state lexbuf }
   | ipv4addr ('/' digit+)? as s
     { try VALUE (Value_ipaddrs (ipaddrs_of_string s)) with
-      Invalid_argument msg -> parse_error lexbuf msg; lexmain lexbuf }
+      Invalid_argument msg -> parse_error lexbuf msg; lexmain state lexbuf }
   | dnsdomain as s { VALUE (Value_dnsname s) }
   | digit+ as s { VALUE (Value_int (int_of_string s)) }
-  | '"' (([^ '\\' '"' '$'] | '\\' _)* as s) '"' { VALUE (Value_string s) }
-  | '"' { EXPR (lexstring (get_loc lexbuf) [] lexbuf) }
-  | '(' { LPAREN }
-  | ')' { RPAREN }
+  | '"' (stringdata as s) '"' { VALUE (Value_string (unquote s)) }
+  | '"' (stringdata as s) "$("
+    { state.s_nesting <- Interp :: state.s_nesting; STRING_START (unquote s) }
+  | '(' { state.s_nesting <- Paren :: state.s_nesting; LPAREN }
+  | ')'
+    { match state.s_nesting with
+      | Paren :: nesting -> state.s_nesting <- nesting; RPAREN
+      | Interp :: nesting -> state.s_nesting <- nesting; lexinterp state lexbuf
+      | [] -> parse_error lexbuf "Unmatched closing paranthesis.";
+	      lexmain state lexbuf }
   | '!' { NOT } | "or" { OR }
   | '\\' { COMPL } | '&' { INTER } | ',' { UNION }
   (*| '=' | "<=" | ">=" | "<" | ">" as op { R op }*)
@@ -104,22 +119,19 @@ rule lexmain = parse
   | ".." { DOTS }
   | eof { EOF }
   | _ as c
-    {
-        parse_error lexbuf (sprintf "Lexical error at '%c'." c);
-	lexmain lexbuf
-    }
+    { parse_error lexbuf (sprintf "Lexical error at '%c'." c);
+      lexmain state lexbuf }
 
-and lexstring loc frags = parse
-  | '"' { Expr_cat (loc, List.rev frags) }
-  | "${" (ident as x) "}"
-    { lexstring loc (Expr_var (get_loc lexbuf, x) :: frags) lexbuf }
-  | ([^ '\\' '"' '$'] | '\\' _)+ as s
-    { lexstring loc (Expr_value (get_loc lexbuf, Value_string s) :: frags) lexbuf }
+and lexinterp state = parse
+  | (stringdata as s) "$("
+    { state.s_nesting <- Interp :: state.s_nesting; STRING_MID (unquote s) }
+  | (stringdata as s) '"'
+    { STRING_END (unquote s) }
 
 {
 open Lexing
 
-let rec parse lexbuf = start lexmain lexbuf
+let rec parse lexbuf = start (lexmain {s_nesting = []}) lexbuf
 
 let parse_file path =
     let chan = open_in path in
