@@ -16,7 +16,7 @@
 
 open Iplogic_address
 
-type loc = Lexing.position
+type loc = Lexing.position * Lexing.position
 
 type vtype =
    | Vtype_int

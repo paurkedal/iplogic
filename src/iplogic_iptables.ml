@@ -101,4 +101,4 @@ let rec emit_chain' qcn = function
     emit_chain' qcn cont cond
 
 let emit_chain qcn chain =
-    emit_chain' qcn chain (Cond_const (Lexing.dummy_pos, true))
+    emit_chain' qcn chain (Cond_const (Iplogic_utils.dummy_loc, true))

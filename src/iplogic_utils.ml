@@ -19,6 +19,8 @@ open Iplogic_types
 open Unprime_array
 open Iplogic_diag
 
+let dummy_loc = (Lexing.dummy_pos, Lexing.dummy_pos)
+
 let expr_loc = function
   | Expr_var (loc, _)
   | Expr_value (loc, _)

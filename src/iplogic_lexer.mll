@@ -20,15 +20,11 @@ open Iplogic_types
 open Iplogic_parser
 open Printf
 
-let get_loc () = Parsing.symbol_start_pos ()
+let get_loc lexbuf = (lexbuf.Lexing.lex_start_p, lexbuf.Lexing.lex_curr_p)
 
 let parse_error lexbuf s =
-  let loc = lexbuf.Lexing.lex_curr_p in
-  eprintf "%s:%d,%d: %s\n"
-	  loc.Lexing.pos_fname
-	  loc.Lexing.pos_lnum
-	  (loc.Lexing.pos_cnum - loc.Lexing.pos_bol)
-	  s
+  Iplogic_diag.eprint_loc (get_loc lexbuf);
+  prerr_string s; prerr_newline ()
 
 let next_line lexbuf =
   let pos = lexbuf.Lexing.lex_curr_p in
@@ -86,12 +82,16 @@ let dnsdomain = (dnslabel '.')+ dnslabel_tld
 rule lexmain = parse
   | '\n' { next_line lexbuf; lexmain lexbuf }
   | '#' [^ '\n']* | [' ' '\t'] { lexmain lexbuf }
-  | ipv6addr ('/' digit+)? as s { VALUE (Value_ipaddrs (ipaddrs_of_string s)) }
-  | ipv4addr ('/' digit+)? as s { VALUE (Value_ipaddrs (ipaddrs_of_string s)) }
+  | ipv6addr ('/' digit+)? as s
+    { try VALUE (Value_ipaddrs (ipaddrs_of_string s)) with
+      Invalid_argument msg -> parse_error lexbuf msg; lexmain lexbuf }
+  | ipv4addr ('/' digit+)? as s
+    { try VALUE (Value_ipaddrs (ipaddrs_of_string s)) with
+      Invalid_argument msg -> parse_error lexbuf msg; lexmain lexbuf }
   | dnsdomain as s { VALUE (Value_dnsname s) }
   | digit+ as s { VALUE (Value_int (int_of_string s)) }
   | '"' (([^ '\\' '"' '$'] | '\\' _)* as s) '"' { VALUE (Value_string s) }
-  | '"' { EXPR (lexstring (get_loc ()) [] lexbuf) }
+  | '"' { EXPR (lexstring (get_loc lexbuf) [] lexbuf) }
   | '(' { LPAREN }
   | ')' { RPAREN }
   | '!' { NOT } | "or" { OR }
@@ -112,9 +112,9 @@ rule lexmain = parse
 and lexstring loc frags = parse
   | '"' { Expr_cat (loc, List.rev frags) }
   | "${" (ident as x) "}"
-    { lexstring loc (Expr_var (get_loc (), x) :: frags) lexbuf }
+    { lexstring loc (Expr_var (get_loc lexbuf, x) :: frags) lexbuf }
   | ([^ '\\' '"' '$'] | '\\' _)+ as s
-    { lexstring loc (Expr_value (get_loc (), Value_string s) :: frags) lexbuf }
+    { lexstring loc (Expr_value (get_loc lexbuf, Value_string s) :: frags) lexbuf }
 
 {
 open Lexing

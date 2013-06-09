@@ -16,6 +16,7 @@
 
 open Iplogic_types
 
+val dummy_loc : loc
 val expr_loc : expr -> loc
 val cond_loc : cond -> loc
 val chain_loc : chain -> loc

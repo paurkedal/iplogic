@@ -17,10 +17,21 @@
 open Printf
 open Unprime_option
 
-let bprint_loc buf loc =
-  bprintf buf "%s:%d,%d: "
-	  loc.Lexing.pos_fname
-	  loc.Lexing.pos_lnum (loc.Lexing.pos_cnum - loc.Lexing.pos_bol)
+let bprint_loc buf (lb, ub) =
+  if lb.Lexing.pos_cnum = ub.Lexing.pos_cnum then
+    bprintf buf "%s:%d,%d: "
+	    lb.Lexing.pos_fname
+	    lb.Lexing.pos_lnum (lb.Lexing.pos_cnum - lb.Lexing.pos_bol)
+  else if lb.Lexing.pos_lnum = ub.Lexing.pos_lnum then
+    bprintf buf "%s:%d,%d-%d: "
+	    lb.Lexing.pos_fname lb.Lexing.pos_lnum
+	    (lb.Lexing.pos_cnum - lb.Lexing.pos_bol)
+	    (ub.Lexing.pos_cnum - ub.Lexing.pos_bol)
+  else
+    bprintf buf "%s:%d,%d-%d,%d: "
+	    lb.Lexing.pos_fname
+	    lb.Lexing.pos_lnum (lb.Lexing.pos_cnum - lb.Lexing.pos_bol)
+	    ub.Lexing.pos_lnum (ub.Lexing.pos_cnum - ub.Lexing.pos_bol)
 
 let sprint_loc loc =
   let buf = Buffer.create 10 in
