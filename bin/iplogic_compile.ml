@@ -78,7 +78,7 @@ let () =
   let opt_split_chains = ref false in
   let opt_args = ref [] in
   let opt_template = ref None in
-  let argusage = "iplogic-to-iptables [-o PATH] INPUT" in
+  let argusage = "iplogic-compile [-o PATH] INPUT" in
   let argspecs = Arg.align [
     "-o", set_string opt_o,
       "PATH Store firewall stript in PATH.  \
@@ -103,9 +103,12 @@ let () =
   let input = Iplogic_lexer.parse_file input_path in
   let output = Iplogic_passes.compile input in
   match !opt_split_chains, !opt_o with
-  | false, None -> emit_monolithic ?template_path:!opt_template stdout output
+  | false, None ->
+    emit_monolithic ?template_path:!opt_template stdout output
   | false, Some path ->
-    let och = open_out path in emit_monolithic och output; close_out och
+    let och = open_out path in
+    emit_monolithic ?template_path:!opt_template och output;
+    close_out och
   | true, None ->
     misusage "An output directory must be specified when splitting the output."
   | true, Some path_template ->
