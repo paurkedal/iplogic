@@ -22,7 +22,7 @@ let set_string r = Arg.String (fun arg -> r := Some arg)
 
 let emit_rules_for_chain och (tn, chn, rules) =
   let commands = Iplogic_iptables.emit_chain (tn, chn) rules in
-  Shell_monoid.output_shell_seq och commands
+  Iplogic_shell.output_shell_seq och commands
 
 let template_rex = Pcre.regexp "@[A-Z]+@"
 

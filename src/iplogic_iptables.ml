@@ -16,7 +16,7 @@
 
 open Iplogic_address
 open Iplogic_types
-open Shell_monoid
+open Iplogic_shell
 
 let (>>) x y = SL[x; y]
 

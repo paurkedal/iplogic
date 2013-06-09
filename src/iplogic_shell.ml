@@ -29,8 +29,8 @@ let shell_quoted s =
   let buf = Buffer.create (String.length s + 8) in
   let put ch =
     begin match ch with
-      | '\\' | '"' | '`' | '$' -> Buffer.add_char buf '\\'
-      | _ -> ()
+    | '\\' | '"' | '`' | '$' -> Buffer.add_char buf '\\'
+    | _ -> ()
     end;
     Buffer.add_char buf ch in
   Buffer.add_char buf '"';
@@ -43,9 +43,9 @@ let rec pop_first_shell_arg = function
   | AL[] -> None
   | AL (arg :: args) ->
     begin match pop_first_shell_arg arg with
-      | None -> pop_first_shell_arg (AL args)
-      | Some (arg0, AL[]) -> Some (arg0, AL (args))
-      | Some (arg0, arg') -> Some (arg0, AL (arg' :: args))
+    | None -> pop_first_shell_arg (AL args)
+    | Some (arg0, AL[]) -> Some (arg0, AL (args))
+    | Some (arg0, arg') -> Some (arg0, AL (arg' :: args))
     end
 
 let rec output_shell_args' sep chan = function
