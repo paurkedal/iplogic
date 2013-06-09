@@ -64,12 +64,12 @@ let rec emit_logopts = function
   | _ -> invalid_arg "Unhandled log option."
 
 let emit_iptables qcn args =
-    SC (AL [
-	AV"iptables";
-	AV"-t"; AQ (fst qcn);
-	AV"-A"; AQ (snd qcn);
-	args
-    ])
+  SC (AL [
+    AV"iptables";
+    AV"-t"; AQ (fst qcn);
+    AV"-A"; AQ (snd qcn);
+    args
+  ])
 
 let rec emit_chain' qcn = function
   | Chain_if (loc, Cond_const (_, true), cq, ccq) -> fun cond ->

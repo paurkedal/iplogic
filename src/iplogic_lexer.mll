@@ -23,45 +23,45 @@ open Printf
 let get_loc () = Parsing.symbol_start_pos ()
 
 let parse_error lexbuf s =
-    let loc = lexbuf.Lexing.lex_curr_p in
-    eprintf "%s:%d,%d: %s\n"
-	    loc.Lexing.pos_fname
-	    loc.Lexing.pos_lnum
-	    (loc.Lexing.pos_cnum - loc.Lexing.pos_bol)
-	    s
+  let loc = lexbuf.Lexing.lex_curr_p in
+  eprintf "%s:%d,%d: %s\n"
+	  loc.Lexing.pos_fname
+	  loc.Lexing.pos_lnum
+	  (loc.Lexing.pos_cnum - loc.Lexing.pos_bol)
+	  s
 
 let next_line lexbuf =
-    let pos = lexbuf.Lexing.lex_curr_p in
-    lexbuf.Lexing.lex_curr_p <- { pos with
-	Lexing.pos_lnum = pos.Lexing.pos_lnum + 1;
-	Lexing.pos_bol = pos.Lexing.pos_cnum;
-    }
+  let pos = lexbuf.Lexing.lex_curr_p in
+  lexbuf.Lexing.lex_curr_p <- { pos with
+    Lexing.pos_lnum = pos.Lexing.pos_lnum + 1;
+    Lexing.pos_bol = pos.Lexing.pos_cnum;
+  }
 
 let keywords =
-    let entries = [
-        "val", VAL;
-	"con", CON;
-	"is", IS;
-	"chain", CHAIN;
+  let entries = [
+    "val", VAL;
+    "con", CON;
+    "is", IS;
+    "chain", CHAIN;
 
-	"call", CALL;
-	"goto", GOTO;
-	"log", LOG;
-        "if", IF;
-	"return", RETURN;
-	"fail", FAIL;
+    "call", CALL;
+    "goto", GOTO;
+    "log", LOG;
+    "if", IF;
+    "return", RETURN;
+    "fail", FAIL;
 
-	"accept", ACCEPT;
-	"reject", REJECT;
-	"drop", DROP;
-	"alter", ALTER;
+    "accept", ACCEPT;
+    "reject", REJECT;
+    "drop", DROP;
+    "alter", ALTER;
 
-	"true", BOOL true;
-	"false", BOOL false;
-    ] in
-    let ht = Hashtbl.create (List.length entries) in
-    List.iter (fun (kw, tk) -> Hashtbl.add ht kw tk) entries;
-    ht
+    "true", BOOL true;
+    "false", BOOL false;
+  ] in
+  let ht = Hashtbl.create (List.length entries) in
+  List.iter (fun (kw, tk) -> Hashtbl.add ht kw tk) entries;
+  ht
 }
 
 let alpha = ['a'-'z' 'A'-'Z']

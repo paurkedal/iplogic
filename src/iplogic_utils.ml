@@ -66,11 +66,11 @@ let value_type = function
   | Value_ipaddrs _ | Value_dnsname _ -> Vtype_ipaddrs
 
 let resolve loc name =
-    try
-	let h = Unix.gethostbyname name in
-	let add_addr inaddr =
-	    let addr = ipaddrs_of_string (Unix.string_of_inet_addr inaddr) in
-	    Bitpath_cover.union addr in
-	Array.fold add_addr h.Unix.h_addr_list Bitpath_cover.empty
-    with Not_found ->
-	failf ~loc "Failed to resolve %s." name
+  try
+    let h = Unix.gethostbyname name in
+    let add_addr inaddr =
+      let addr = ipaddrs_of_string (Unix.string_of_inet_addr inaddr) in
+      Bitpath_cover.union addr in
+    Array.fold add_addr h.Unix.h_addr_list Bitpath_cover.empty
+  with Not_found ->
+    failf ~loc "Failed to resolve %s." name

@@ -100,8 +100,8 @@ let rec pass1_expr env = function
     Expr_cat (loc, List.map (pass1_expr env) es)
 
 let pass1s_expr env e =
-    let et = check_expr env e in
-    simplify_expr et (pass1_expr env e)
+  let et = check_expr env e in
+  simplify_expr et (pass1_expr env e)
 
 let pass1s_options env opts =
   List.map (fun (opt, arg) -> (opt, pass1s_expr env arg)) opts
@@ -149,10 +149,10 @@ let pass1_def = function
     Env.define_chain loc tn chn ch' env'
 
 let compile defs =
-    let env = List.fold pass1_def defs Env.empty in
-    List.rev
-      (String_map.fold
-	(fun tn tm ->
-	  String_map.fold (fun chn chd acc -> (tn, chn, chd) :: acc) tm)
-	env.Env.chmap
-	[])
+  let env = List.fold pass1_def defs Env.empty in
+  List.rev
+    (String_map.fold
+      (fun tn tm ->
+	String_map.fold (fun chn chd acc -> (tn, chn, chd) :: acc) tm)
+      env.Env.chmap
+      [])

@@ -21,13 +21,13 @@ open Printf
 let get_loc () = Parsing.symbol_start_pos ()
 
 let parse_error s =
-    let loc0 = Parsing.symbol_start_pos () in
-    let loc1 = Parsing.symbol_end_pos () in
-    eprintf "%s:%d,%d-%d,%d: %s\n"
-	    loc0.Lexing.pos_fname
-	    loc0.Lexing.pos_lnum (loc0.Lexing.pos_cnum - loc0.Lexing.pos_bol)
-	    loc1.Lexing.pos_lnum (loc1.Lexing.pos_cnum - loc1.Lexing.pos_bol)
-	    s
+  let loc0 = Parsing.symbol_start_pos () in
+  let loc1 = Parsing.symbol_end_pos () in
+  eprintf "%s:%d,%d-%d,%d: %s\n"
+	  loc0.Lexing.pos_fname
+	  loc0.Lexing.pos_lnum (loc0.Lexing.pos_cnum - loc0.Lexing.pos_bol)
+	  loc1.Lexing.pos_lnum (loc1.Lexing.pos_cnum - loc1.Lexing.pos_bol)
+	  s
 
 let default_table = ref "filter"
 %}

@@ -18,22 +18,22 @@ open Printf
 open Unprime_option
 
 let bprint_loc buf loc =
-    bprintf buf "%s:%d,%d: "
-	    loc.Lexing.pos_fname
-	    loc.Lexing.pos_lnum (loc.Lexing.pos_cnum - loc.Lexing.pos_bol)
+  bprintf buf "%s:%d,%d: "
+	  loc.Lexing.pos_fname
+	  loc.Lexing.pos_lnum (loc.Lexing.pos_cnum - loc.Lexing.pos_bol)
 
 let sprint_loc loc =
-    let buf = Buffer.create 10 in
-    bprint_loc buf loc; Buffer.contents buf
+  let buf = Buffer.create 10 in
+  bprint_loc buf loc; Buffer.contents buf
 
 let eprint_loc loc = output_string stderr (sprint_loc loc)
 
 let errf ?loc msg =
-    ksprintf (fun s -> Option.iter eprint_loc loc; eprintf "%s\n" s) msg
+  ksprintf (fun s -> Option.iter eprint_loc loc; eprintf "%s\n" s) msg
 
 let failf ?loc msg =
-    let on_msg s =
-	let buf = Buffer.create 10 in
-	Option.iter (bprint_loc buf) loc; bprintf buf "%s\n" s;
-	raise (Failure (Buffer.contents buf)) in
-    ksprintf on_msg msg
+  let on_msg s =
+    let buf = Buffer.create 10 in
+    Option.iter (bprint_loc buf) loc; bprintf buf "%s\n" s;
+    raise (Failure (Buffer.contents buf)) in
+  ksprintf on_msg msg

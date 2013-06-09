@@ -26,17 +26,17 @@ type shell_seq =
 (** Puts a string in double quotes after escaping shell-special characters
     ['\\'], ['"'], ['`'], and ['$']. *)
 let shell_quoted s =
-    let buf = Buffer.create (String.length s + 8) in
-    let put ch =
-	begin match ch with
-	  | '\\' | '"' | '`' | '$' -> Buffer.add_char buf '\\'
-	  | _ -> ()
-	end;
-	Buffer.add_char buf ch in
-    Buffer.add_char buf '"';
-    String.iter put s;
-    Buffer.add_char buf '"';
-    Buffer.contents buf
+  let buf = Buffer.create (String.length s + 8) in
+  let put ch =
+    begin match ch with
+      | '\\' | '"' | '`' | '$' -> Buffer.add_char buf '\\'
+      | _ -> ()
+    end;
+    Buffer.add_char buf ch in
+  Buffer.add_char buf '"';
+  String.iter put s;
+  Buffer.add_char buf '"';
+  Buffer.contents buf
 
 let rec pop_first_shell_arg = function
   | AQ _ | AV _ as a -> Some (a, AL[])
@@ -54,11 +54,11 @@ let rec output_shell_args' sep chan = function
   | AL cs -> List.iter (output_shell_args' sep chan) cs
 
 let output_shell_args chan args =
-    match pop_first_shell_arg args with
-    | None -> ()
-    | Some (arg, args) ->
-	output_shell_args' ""  chan arg;
-	output_shell_args' " " chan args
+  match pop_first_shell_arg args with
+  | None -> ()
+  | Some (arg, args) ->
+    output_shell_args' ""  chan arg;
+    output_shell_args' " " chan args
 
 let rec output_shell_seq chan = function
   | SC c -> output_shell_args chan c; output_char chan '\n'
