@@ -1,4 +1,4 @@
-(* Copyright (C) 2012  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -143,7 +143,8 @@ let parse_file path =
 	    pos_bol = 0;
 	    pos_cnum = 0;
 	};
-	parse lexbuf
+	let r = parse lexbuf in
+	close_in chan; r
     with xc ->
 	close_in chan;
 	raise xc
