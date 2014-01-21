@@ -81,7 +81,7 @@ let () =
   let argusage = "iplogic-compile [-o PATH] INPUT" in
   let argspecs = Arg.align [
     "-o", set_string opt_o,
-      "PATH Store firewall stript in PATH.  \
+      "PATH Store firewall script in PATH.  \
 	    If --split-chains has been passed, then this is taken to be a \
 	    template for the individual filewall scripts substituting \
 	    the table name for %t and \
