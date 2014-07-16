@@ -39,7 +39,7 @@ syn keyword iplInclude include
 syn keyword iplDirective val con autochain
 syn match iplDirective '\<chain\>!\?' skipwhite nextgroup=iplChainName
 syn keyword iplFinal is
-syn keyword iplFinal alter accept drop reject fail return
+syn keyword iplFinal alter accept drop reject fail return continue
 syn match iplFinal '\<goto\>!\?' skipwhite nextgroup=iplChainName
 syn keyword iplAction log bug
 syn keyword iplAction call skipwhite nextgroup=iplChainName

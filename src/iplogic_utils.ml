@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2014  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ let cond_loc = function
 
 let chain_loc = function
   | Chain_if (loc, _, _, _)
+  | Chain_continue loc
   | Chain_decision (loc, _)
   | Chain_return loc
   | Chain_fail loc

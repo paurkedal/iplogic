@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2014  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,6 +132,8 @@ let rec pass1_chain = function
     let cq', env' = pass1_chain cq env in
     let ccq', env'' = pass1_chain ccq env' in
     Chain_if (loc, c', cq', ccq'), env''
+  | Chain_continue loc -> fun env ->
+    Chain_continue loc, env
   | Chain_decision (loc, Alter (tgt, opts)) -> fun env ->
     Chain_decision (loc, Alter (tgt, pass1s_options env opts)), env
   | Chain_decision _ | Chain_return _ | Chain_fail _ | Chain_goto _ as r ->

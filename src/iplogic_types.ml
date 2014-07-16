@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2014  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,6 +54,7 @@ type decision =
 
 type chain =
    | Chain_if of loc * cond * chain * chain
+   | Chain_continue of loc
    | Chain_decision of loc * decision
    | Chain_return of loc
    | Chain_fail of loc

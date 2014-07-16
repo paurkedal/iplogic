@@ -55,6 +55,7 @@ let keywords =
     "goto", GOTO;
     "log", LOG;
     "if", IF;
+    "continue", CONTINUE;
     "return", RETURN;
     "fail", FAIL;
 

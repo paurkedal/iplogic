@@ -29,7 +29,7 @@ let default_table = ref "filter"
 %}
 
 %token<string -> Iplogic_types.def list> INCLUDE
-%token VAL CON CHAIN IF FAIL RETURN CALL GOTO LOG
+%token VAL CON CHAIN IF CONTINUE FAIL RETURN CALL GOTO LOG
 %token ACCEPT REJECT DROP ALTER
 %token<string> NAME FLAG STRING STRING_START STRING_MID STRING_END
 %token<Iplogic_types.value> VALUE
@@ -109,6 +109,7 @@ predicate:
   | REJECT { Chain_decision (lhs_loc (), Reject) }
   | DROP { Chain_decision (lhs_loc (), Drop) }
   | ALTER NAME options { Chain_decision (lhs_loc (), Alter ($2, List.rev $3)) }
+  | CONTINUE { Chain_continue (lhs_loc ()) }
   | RETURN { Chain_return (lhs_loc ()) }
   | FAIL { Chain_fail (lhs_loc ()) }
   | GOTO NAME { Chain_goto (lhs_loc (), $2) }

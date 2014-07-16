@@ -81,6 +81,7 @@ let rec emit_chain' qcn = function
   | Chain_if (loc, cond', cq, ccq) -> fun cond ->
     emit_chain' qcn cq (Cond_and (loc, cond, cond')) >>
     emit_chain' qcn ccq cond
+  | Chain_continue loc -> fun cond -> SL []
   | Chain_decision (_, Accept) -> fun cond ->
     emit_iptables qcn (AL[AV"-j"; AV "ACCEPT"; emit_cond cond])
   | Chain_decision (_, Alter (t, opts)) -> fun cond ->
