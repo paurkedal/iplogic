@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2014  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 open Iplogic_address
 open Iplogic_types
 open Iplogic_shell
+open Printf
 
 let (>>) x y = SL[x; y]
 
@@ -55,13 +56,14 @@ let rec emit_options = function
   | (fl, v) :: opts -> AV fl :: AQ (expr_to_string v) :: emit_options opts
 
 let rec emit_logopts = function
-  | ("level", expr) :: opts ->
+  | [] -> []
+  | ("--log-level", expr) :: opts ->
     (* check_type Vtype_int expr; *)
     AV"--log-level" :: AQ (expr_to_string expr) :: emit_logopts opts
-  | ("prefix", expr) :: opts ->
+  | ("--log-prefix", expr) :: opts ->
     (* check_type Vtype_string expr; *)
     AV"--log-prefix" :: AQ (expr_to_string expr) :: emit_logopts opts
-  | _ -> invalid_arg "Unhandled log option."
+  | (opt, _) :: _ -> ksprintf invalid_arg "Unhandled log option %s." opt
 
 let emit_iptables qcn args =
   SC (AL [
