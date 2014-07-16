@@ -1,4 +1,4 @@
-(* Copyright (C) 2013  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2013--2014  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,6 +78,7 @@ let () =
   let opt_split_chains = ref false in
   let opt_args = ref [] in
   let opt_template = ref None in
+  let opt_incdirs = ref ["."] in
   let argusage = "iplogic-compile [-o PATH] INPUT" in
   let argspecs = Arg.align [
     "-o", set_string opt_o,
@@ -86,6 +87,8 @@ let () =
 	    template for the individual filewall scripts substituting \
 	    the table name for %t and \
 	    the chain name for %c.";
+    "-I", Arg.String (fun dir -> opt_incdirs := dir :: !opt_incdirs),
+      "DIR Prepend DIR to the list of directories to search for input files.";
     "-template", set_string opt_template,
       "PATH Wrap each output file in the template file PATH, substituting \
 	    the table name for @TABLE@, \
@@ -100,7 +103,7 @@ let () =
     match !opt_args with
     | [arg] -> arg
     | _ -> misusage "Expecting a single positional argument." in
-  let input = Iplogic_lexer.parse_file input_path in
+  let input = Iplogic_lexer.parse_file ~include_dirs:!opt_incdirs input_path in
   let output = Iplogic_passes.compile input in
   match !opt_split_chains, !opt_o with
   | false, None ->

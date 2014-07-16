@@ -19,6 +19,7 @@ open Iplogic_address
 open Iplogic_types
 open Iplogic_parser
 open Printf
+open Unprime_list
 
 let get_loc lexbuf = (lexbuf.Lexing.lex_start_p, lexbuf.Lexing.lex_curr_p)
 
@@ -26,6 +27,7 @@ type paren = Paren | Interp
 
 type state = {
   mutable s_nesting : paren list;
+  s_parse_file : string -> def list;
 }
 
 let parse_error lexbuf s =
@@ -43,6 +45,7 @@ let unquote s = s
 
 let keywords =
   let entries = [
+    "include", INCLUDE (fun _ -> assert false);
     "val", VAL;
     "con", CON;
     "is", IS;
@@ -99,7 +102,7 @@ rule lexmain state = parse
       Invalid_argument msg -> parse_error lexbuf msg; lexmain state lexbuf }
   | dnsdomain as s { VALUE (Value_dnsname s) }
   | digit+ as s { VALUE (Value_int (int_of_string s)) }
-  | '"' (stringdata as s) '"' { VALUE (Value_string (unquote s)) }
+  | '"' (stringdata as s) '"' { STRING (unquote s) }
   | '"' (stringdata as s) "$("
     { state.s_nesting <- Interp :: state.s_nesting; STRING_START (unquote s) }
   | '(' { state.s_nesting <- Paren :: state.s_nesting; LPAREN }
@@ -114,7 +117,12 @@ rule lexmain state = parse
   (*| '=' | "<=" | ">=" | "<" | ">" as op { R op }*)
   | '-' alnum | "--" flagident as s { FLAG s }
   | ident ':' digit+ as s { NAME s }
-  | ident as s { try Hashtbl.find keywords s with Not_found -> NAME s }
+  | ident as s
+    { try
+	match Hashtbl.find keywords s with
+	| INCLUDE f -> INCLUDE state.s_parse_file
+	| tok -> tok
+      with Not_found -> NAME s }
   | ':' { COLON }
   | ".." { DOTS }
   | eof { EOF }
@@ -131,21 +139,39 @@ and lexinterp state = parse
 {
 open Lexing
 
-let rec parse lexbuf = start (lexmain {s_nesting = []}) lexbuf
+let locate_file ~include_dirs path =
+  match
+    List.search
+      (fun dir ->
+	try let fp = Filename.concat dir path in
+	    ignore (Unix.stat fp); Some fp
+	with Unix.Unix_error (Unix.ENOENT, _, _) -> None)
+      include_dirs
+  with
+  | Some fp -> fp
+  | None ->
+    ksprintf (fun s -> raise (Sys_error s)) "Cannot find %s in include dirs: %s"
+      path (String.concat ", " include_dirs)
 
-let parse_file path =
-    let chan = open_in path in
-    try
-	let lexbuf = from_channel chan in
-	lexbuf.lex_curr_p <- {
-	    pos_fname = path;
-	    pos_lnum = 1;
-	    pos_bol = 0;
-	    pos_cnum = 0;
-	};
-	let r = parse lexbuf in
-	close_in chan; r
-    with xc ->
-	close_in chan;
-	raise xc
+let rec parse_file ?(include_dirs = ["."]) path =
+  let path = if Filename.is_relative path then locate_file ~include_dirs path
+					  else path in
+  let chan = open_in path in
+  try
+    let lexbuf = from_channel chan in
+    lexbuf.lex_curr_p <- {
+      pos_fname = path;
+      pos_lnum = 1;
+      pos_bol = 0;
+      pos_cnum = 0;
+    };
+    let state = {
+      s_nesting = [];
+      s_parse_file = parse_file ~include_dirs;
+    } in
+    let r = start (lexmain state) lexbuf in
+    close_in chan; r
+  with xc ->
+    close_in chan;
+    raise xc
 }

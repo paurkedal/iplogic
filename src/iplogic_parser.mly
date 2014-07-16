@@ -28,9 +28,10 @@ let parse_error s =
 let default_table = ref "filter"
 %}
 
+%token<string -> Iplogic_types.def list> INCLUDE
 %token VAL CON CHAIN IF FAIL RETURN CALL GOTO LOG
 %token ACCEPT REJECT DROP ALTER
-%token<string> NAME FLAG STRING_START STRING_MID STRING_END
+%token<string> NAME FLAG STRING STRING_START STRING_MID STRING_END
 %token<Iplogic_types.value> VALUE
 %token<Iplogic_types.expr> EXPR
 %token<bool> BOOL
@@ -56,6 +57,7 @@ decls:
   | decls CHAIN NAME predicate
     { Def_chain (lhs_loc (), !default_table, $3, $4) :: $1 }
   | decls error { $1 }
+  | decls INCLUDE STRING { $2 $3 }
   ;
 
 condition:
@@ -94,6 +96,7 @@ atomic_vexpr:
     EXPR { $1 }
   | VALUE { Expr_value (lhs_loc (), $1) }
   | VALUE DOTS VALUE { Expr_range (lhs_loc (), $1, $3) }
+  | STRING { Expr_value (lhs_loc (), Value_string $1) }
   | STRING_START string_mid STRING_END
     { let s1 = Expr_value (rhs_loc 1, Value_string $1) in
       let s3 = Expr_value (rhs_loc 3, Value_string $3) in

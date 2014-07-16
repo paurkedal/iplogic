@@ -35,6 +35,7 @@ syn match iplAddressPrefixLength contained '/\d\+\>'
 syn keyword iplType string ints nets device protocol
 
 " Directives and Flow Control
+syn keyword iplInclude include
 syn keyword iplDirective val con autochain
 syn match iplDirective '\<chain\>!\?' skipwhite nextgroup=iplChainName
 syn keyword iplFinal is
@@ -56,6 +57,7 @@ syn match iplComment '#.*'
 
 " Highligthing Defaults
 hi def link iplDirective Statement
+hi def link iplInclude iplDirective
 hi def link iplConditional Conditional
 hi def link iplFinal Statement
 hi def link iplAction Function
