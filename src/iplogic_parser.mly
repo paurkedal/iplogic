@@ -29,7 +29,7 @@ let default_table = ref "filter"
 %}
 
 %token<string -> Iplogic_types.def list> INCLUDE
-%token VAL CON CHAIN IF CONTINUE FAIL RETURN CALL GOTO LOG
+%token VAL CON CHAIN POLICY IF CONTINUE FAIL RETURN CALL GOTO LOG
 %token ACCEPT REJECT DROP ALTER
 %token<string> NAME FLAG STRING STRING_START STRING_MID STRING_END
 %token<Iplogic_types.value> VALUE
@@ -53,11 +53,19 @@ decls:
   | decls VAL NAME IS vexpr { Def_val (lhs_loc (), $3, $5) :: $1 }
   | decls VAL NAME COLON vtype { Def_val_type (lhs_loc (), $3, $5) :: $1 }
   | decls CON NAME IS condition { Def_cond (lhs_loc (), $3, $5) :: $1 }
-  | decls CHAIN NAME NAME predicate {Def_chain (lhs_loc (), $3, $4, $5) :: $1}
-  | decls CHAIN NAME predicate
-    { Def_chain (lhs_loc (), !default_table, $3, $4) :: $1 }
+  | decls CHAIN NAME NAME policy predicate
+    { Def_chain (lhs_loc (), $3, $4, $5, $6) :: $1 }
+  | decls CHAIN NAME policy predicate
+    { Def_chain (lhs_loc (), !default_table, $3, $4, $5) :: $1 }
   | decls error { $1 }
   | decls INCLUDE STRING { $2 $3 }
+  ;
+
+policy: /* empty */ { Policy_none } | POLICY policy_arg { $2 };
+policy_arg:
+    ACCEPT { Policy_accept }
+  | REJECT { Policy_reject }
+  | DROP { Policy_drop }
   ;
 
 condition:

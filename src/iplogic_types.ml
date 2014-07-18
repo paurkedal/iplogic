@@ -52,6 +52,12 @@ type decision =
    | Drop
    | Alter of string * (string * expr) list
 
+type policy =
+   | Policy_none
+   | Policy_accept
+   | Policy_reject
+   | Policy_drop
+
 type chain =
    | Chain_if of loc * cond * chain * chain
    | Chain_continue of loc
@@ -66,4 +72,4 @@ type def =
    | Def_val of loc * string * expr
    | Def_val_type of loc * string * string
    | Def_cond of loc * string * cond
-   | Def_chain of loc * string * string * chain
+   | Def_chain of loc * string * string * policy * chain

@@ -55,7 +55,7 @@ let def_loc = function
   | Def_val (loc, _, _)
   | Def_val_type (loc, _, _)
   | Def_cond (loc, _, _)
-  | Def_chain (loc, _, _, _)
+  | Def_chain (loc, _, _, _, _)
     -> loc
 
 let vtype_to_string = function

@@ -50,6 +50,7 @@ let keywords =
     "con", CON;
     "is", IS;
     "chain", CHAIN;
+    "policy", POLICY;
 
     "call", CALL;
     "goto", GOTO;

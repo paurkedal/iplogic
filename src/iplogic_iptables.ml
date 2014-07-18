@@ -18,6 +18,7 @@ open Iplogic_address
 open Iplogic_types
 open Iplogic_shell
 open Printf
+open Unprime_option
 
 let (>>) x y = SL[x; y]
 
@@ -73,6 +74,20 @@ let emit_iptables qcn args =
     args
   ])
 
+let emit_chainpolicy qcn policy =
+  let setpol policyname =
+    SC (AL [
+      AV"iptables";
+      AV"-t"; AQ (fst qcn);
+      AV"-P"; AQ (snd qcn);
+      AQ policyname;
+    ]) in
+  match policy with
+  | Policy_none -> SL []
+  | Policy_accept -> setpol "ACCEPT"
+  | Policy_reject -> setpol "REJECT"
+  | Policy_drop ->   setpol "DROP"
+
 let rec emit_chain' qcn = function
   | Chain_if (loc, Cond_const (_, true), cq, ccq) -> fun cond ->
     emit_chain' qcn cq cond
@@ -103,5 +118,6 @@ let rec emit_chain' qcn = function
 	(AL[AV"-j"; AV"LOG"; AL (emit_logopts opts); emit_cond cond]) >>
     emit_chain' qcn cont cond
 
-let emit_chain qcn chain =
-    emit_chain' qcn chain (Cond_const (Iplogic_utils.dummy_loc, true))
+let emit_chain qcn (policy, chain) =
+  emit_chainpolicy qcn policy >>
+  emit_chain' qcn chain (Cond_const (Iplogic_utils.dummy_loc, true))
