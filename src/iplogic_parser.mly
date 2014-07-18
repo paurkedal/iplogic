@@ -58,7 +58,7 @@ decls:
   | decls CHAIN NAME policy predicate
     { Def_chain (lhs_loc (), !default_table, $3, $4, $5) :: $1 }
   | decls error { $1 }
-  | decls INCLUDE STRING { $2 $3 }
+  | decls INCLUDE STRING { List.rev_append ($2 $3) $1 }
   ;
 
 policy: /* empty */ { Policy_none } | POLICY policy_arg { $2 };
