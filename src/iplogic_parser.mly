@@ -43,10 +43,12 @@ let default_table = ref "filter"
 %left INTER
 
 %type<Iplogic_types.def list> start
-%start start
+%type<Iplogic_types.dep list> dep_start
+%start start dep_start
 %%
 
 start: decls EOF { List.rev $1 };
+dep_start: dep_decls EOF { List.rev $1 };
 
 decls:
     /* empty */ { [] }
@@ -59,6 +61,18 @@ decls:
     { Def_chain (lhs_loc (), !default_table, $3, $4, $5) :: $1 }
   | decls error { $1 }
   | decls INCLUDE STRING { List.rev_append ($2 $3) $1 }
+  ;
+dep_decls:
+    /* empty */ { [] }
+  | dep_decls VAL NAME IS vexpr { $1 }
+  | dep_decls VAL NAME COLON vtype { $1 }
+  | dep_decls CON NAME IS condition { $1 }
+  | dep_decls CHAIN NAME NAME policy predicate
+    { Dep_chain ($3, $4) :: $1 }
+  | dep_decls CHAIN NAME policy predicate
+    { Dep_chain (!default_table, $3) :: $1 }
+  | dep_decls error { $1 }
+  | dep_decls INCLUDE STRING { Dep_include $3 :: $1 }
   ;
 
 policy: /* empty */ { Policy_none } | POLICY policy_arg { $2 };

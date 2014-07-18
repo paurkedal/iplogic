@@ -72,3 +72,7 @@ type def =
    | Def_val_type of loc * string * string
    | Def_cond of loc * string * cond
    | Def_chain of loc * string * string * policy * chain
+
+type dep =
+   | Dep_include of string
+   | Dep_chain of string * string

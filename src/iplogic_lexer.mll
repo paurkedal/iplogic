@@ -176,4 +176,18 @@ let rec parse_file ?(include_dirs = ["."]) path =
   with xc ->
     close_in chan;
     raise xc
+
+let rec dep_parse_file path =
+  let chan = open_in path in
+  try
+    let lexbuf = from_channel chan in
+    let state = {
+      s_nesting = [];
+      s_parse_file = fun _ -> assert false;
+    } in
+    let r = dep_start (lexmain state) lexbuf in
+    close_in chan; r
+  with xc ->
+    close_in chan;
+    raise xc
 }
