@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2014  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ type shell_args =
 type shell_seq =
    | SC of shell_args
    | SL of shell_seq list
+   | SLor of shell_seq list
 
 (** Puts a string in double quotes after escaping shell-special characters
     ['\\'], ['"'], ['`'], and ['$']. *)
@@ -60,10 +61,27 @@ let output_shell_args chan args =
     output_shell_args' ""  chan arg;
     output_shell_args' " " chan args
 
+let rec output_shell_seq_inline ~prec chan = function
+  | SC c -> output_shell_args chan c
+  | SL [] -> output_string chan ":"
+  | SL [sq] | SLor [sq] -> output_shell_seq_inline ~prec chan sq
+  | SL (sq :: sqs) ->
+    output_string chan "{ ";
+    List.iter
+      (fun sq -> output_shell_seq_inline ~prec:1 chan sq;
+		 output_string chan "; ") sqs;
+    output_string chan "}"
+  | SLor [] -> output_string chan "false"
+  | SLor (sq :: sqs) ->
+    output_shell_seq_inline ~prec:2 chan sq;
+    List.iter
+      (fun sq -> output_string chan " || ";
+		 output_shell_seq_inline ~prec:2 chan sq) sqs
+
 let rec output_shell_seq ?(prefix = "") chan = function
-  | SC c ->
-    output_string chan prefix;
-    output_shell_args chan c;
-    output_char chan '\n'
   | SL sq ->
     List.iter (output_shell_seq ~prefix chan) sq
+  | sq ->
+    output_string chan prefix;
+    output_shell_seq_inline ~prec:0 chan sq;
+    output_char chan '\n'

@@ -19,6 +19,7 @@ open Printf
 exception Invalid_substitution of string
 
 let opt_emit_new = ref false
+let opt_emit_new_deps = ref false
 let opt_emit_flush = ref false
 
 let set_string r = Arg.String (fun arg -> r := Some arg)
@@ -26,7 +27,8 @@ let set_string r = Arg.String (fun arg -> r := Some arg)
 let emit_rules_for_chain prefix och (tn, chn, rules) =
   let commands =
     Iplogic_iptables.emit_chain
-      ~emit_new:!opt_emit_new ~emit_flush:!opt_emit_flush (tn, chn) rules in
+      ~emit_new:!opt_emit_new ~emit_new_deps:!opt_emit_new_deps
+      ~emit_flush:!opt_emit_flush (tn, chn) rules in
   Iplogic_shell.output_shell_seq ~prefix och commands
 
 let template_rex = Pcre.regexp "@[A-Z]+@"
@@ -102,7 +104,9 @@ let () =
     "-split-chains", Arg.Set opt_split_chains,
       " Split chains into individual files.";
     "-emit-new", Arg.Set opt_emit_new,
-      " Emit iptables -N before populating a chain.";
+      " Emit iptables -N for the compiled chain before populating it.";
+    "-emit-new-deps", Arg.Set opt_emit_new_deps,
+      " Emit iptables -N for chains which are called from the compiled chain.";
     "-emit-flush", Arg.Set opt_emit_flush,
       " Emit iptables -F before populating a chain.";
   ] in

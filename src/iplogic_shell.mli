@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2014  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ type shell_args =
 type shell_seq =
    | SC of shell_args		(** A single command. *)
    | SL of shell_seq list	(** A sequence of commands. *)
+   | SLor of shell_seq list	(** A disjunctive sequence of commands. *)
 
 val shell_quoted : string -> string
 

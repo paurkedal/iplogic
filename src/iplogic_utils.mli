@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2014  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
 
 open Iplogic_types
 
+module String_set : Set.S with type elt = string
+
 val dummy_loc : loc
 val expr_loc : expr -> loc
 val cond_loc : cond -> loc
@@ -26,3 +28,5 @@ val value_type : value -> vtype
 val vtype_to_string : vtype -> string
 
 val resolve : loc -> string -> Bitpath_cover.t
+
+val chain_targets : chain -> String_set.t

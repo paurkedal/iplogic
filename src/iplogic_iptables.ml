@@ -18,9 +18,31 @@ open Iplogic_address
 open Iplogic_types
 open Iplogic_shell
 open Printf
+open Unprime_list
 open Unprime_option
 
 let (>>) x y = SL[x; y]
+
+let set_of_list xs =
+  Iplogic_utils.(List.fold String_set.add xs String_set.empty)
+
+let builtin_filter_targets =
+  set_of_list ["INPUT"; "FORWARD"; "OUTPUT"]
+let builtin_nat_targets =
+  set_of_list ["PREROUTING"; "INPUT"; "OUTPUT"; "POSTROUTING"]
+let builtin_mangle_targets =
+  set_of_list ["PREROUTING"; "INPUT"; "FORWARD"; "OUTPUT"; "POSTROUTING"]
+let builtin_raw_targets =
+  set_of_list ["PREROUTING"; "OUTPUT"]
+let builtin_security_targets =
+  set_of_list ["INPUT"; "FORWARD"; "OUTPUT"]
+let builtin_targets_for = function
+  | "filter" -> builtin_filter_targets
+  | "nat" -> builtin_nat_targets
+  | "mangle" -> builtin_mangle_targets
+  | "raw" -> builtin_raw_targets
+  | "security" -> builtin_security_targets
+  | tn -> ksprintf invalid_arg "Invalid table %s." tn
 
 let value_to_string ?(v6 = false) ?(quote = false) = function
   | Value_int i -> string_of_int i
@@ -75,6 +97,7 @@ let emit_iptables op qcn args =
   ])
 
 let emit_iptables_A qcn args = emit_iptables "-A" qcn args
+let emit_iptables_N qcn = SLor [emit_iptables "-N" qcn (AV "2>/dev/null"); SL[]]
 
 let emit_chainpolicy qcn policy =
   let setpol policyname =
@@ -119,8 +142,19 @@ let rec emit_chain' qcn = function
 	(AL[AV"-j"; AV"LOG"; AL (emit_logopts opts); emit_cond cond]) >>
     emit_chain' qcn cont cond
 
-let emit_chain ?(emit_new = false) ?(emit_flush = false) qcn (policy, chain) =
-  (if emit_new then emit_iptables "-N" qcn (AL []) else SL []) >>
+let emit_chain ?(emit_new = false) ?(emit_new_deps = false)
+	       ?(emit_flush = false) qcn (policy, chain) =
+  let builtin_targets = builtin_targets_for (fst qcn) in
+    (* Only needed when emit_new_deps, but called in any case to check that
+     * the table name is valid. *)
+  begin if emit_new_deps then
+    let open Iplogic_utils in
+    String_set.fold (fun cn m ->
+		      if String_set.mem cn builtin_targets then m else
+		      m >> emit_iptables_N (fst qcn, cn))
+		    (chain_targets chain) (SL [])
+  else SL [] end >>
+  (if emit_new then emit_iptables_N qcn else SL []) >>
   emit_chainpolicy qcn policy >>
   (if emit_flush then emit_iptables "-F" qcn (AL []) else SL []) >>
   emit_chain' qcn chain (Cond_const (Iplogic_utils.dummy_loc, true))

@@ -19,6 +19,8 @@ open Iplogic_types
 open Unprime_array
 open Iplogic_diag
 
+module String_set = Set.Make (String)
+
 let dummy_loc = (Lexing.dummy_pos, Lexing.dummy_pos)
 
 let expr_loc = function
@@ -77,3 +79,11 @@ let resolve loc name =
     Array.fold add_addr h.Unix.h_addr_list Bitpath_cover.empty
   with Not_found ->
     failf ~loc "Failed to resolve %s." name
+
+let rec chain_targets = function
+  | Chain_if (loc, _, ch0, ch1) ->
+    String_set.union (chain_targets ch0) (chain_targets ch1)
+  | Chain_goto (_, chn) -> String_set.singleton chn
+  | Chain_call (_, chn, ch) -> String_set.add chn (chain_targets ch)
+  | Chain_continue _ | Chain_decision _ | Chain_return _
+  | Chain_fail _ | Chain_log _ -> String_set.empty
