@@ -55,7 +55,6 @@ type decision =
 type policy =
    | Policy_none
    | Policy_accept
-   | Policy_reject
    | Policy_drop
 
 type chain =

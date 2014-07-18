@@ -87,7 +87,6 @@ let emit_chainpolicy qcn policy =
   match policy with
   | Policy_none -> SL []
   | Policy_accept -> setpol "ACCEPT"
-  | Policy_reject -> setpol "REJECT"
   | Policy_drop ->   setpol "DROP"
 
 let rec emit_chain' qcn = function

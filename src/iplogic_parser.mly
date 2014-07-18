@@ -64,7 +64,6 @@ decls:
 policy: /* empty */ { Policy_none } | POLICY policy_arg { $2 };
 policy_arg:
     ACCEPT { Policy_accept }
-  | REJECT { Policy_reject }
   | DROP { Policy_drop }
   ;
 
