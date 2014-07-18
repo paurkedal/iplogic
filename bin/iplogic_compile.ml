@@ -18,10 +18,15 @@ open Printf
 
 exception Invalid_substitution of string
 
+let opt_emit_new = ref false
+let opt_emit_flush = ref false
+
 let set_string r = Arg.String (fun arg -> r := Some arg)
 
 let emit_rules_for_chain prefix och (tn, chn, rules) =
-  let commands = Iplogic_iptables.emit_chain (tn, chn) rules in
+  let commands =
+    Iplogic_iptables.emit_chain
+      ~emit_new:!opt_emit_new ~emit_flush:!opt_emit_flush (tn, chn) rules in
   Iplogic_shell.output_shell_seq ~prefix och commands
 
 let template_rex = Pcre.regexp "@[A-Z]+@"
@@ -53,7 +58,7 @@ let emit_monolithic ?template_path och chains =
 
 let path_template_rex = Pcre.regexp "%[tc]"
 
-let emit_by_chain ?template_path path_template =
+let emit_by_chain ?emit_new ?emit_flush ?template_path path_template =
   List.iter
     (fun (tn, chn, rules) ->
       let subst_path = function "%t" -> tn | "%c" -> chn | _ -> assert false in
@@ -96,6 +101,10 @@ let () =
 	    the rules for a line containing exactly the string @RULES@.";
     "-split-chains", Arg.Set opt_split_chains,
       " Split chains into individual files.";
+    "-emit-new", Arg.Set opt_emit_new,
+      " Emit iptables -N before populating a chain.";
+    "-emit-flush", Arg.Set opt_emit_flush,
+      " Emit iptables -F before populating a chain.";
   ] in
   let misusage msg = eprintf "%s\n" msg; Arg.usage argspecs argusage; exit 64 in
   Arg.parse argspecs (fun arg -> opt_args := arg :: !opt_args) argusage;

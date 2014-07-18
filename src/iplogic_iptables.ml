@@ -66,13 +66,15 @@ let rec emit_logopts = function
     AV"--log-prefix" :: AQ (expr_to_string expr) :: emit_logopts opts
   | (opt, _) :: _ -> ksprintf invalid_arg "Unhandled log option %s." opt
 
-let emit_iptables qcn args =
+let emit_iptables op qcn args =
   SC (AL [
     AV"iptables";
     AV"-t"; AQ (fst qcn);
-    AV"-A"; AQ (snd qcn);
+    AV op; AQ (snd qcn);
     args
   ])
+
+let emit_iptables_A qcn args = emit_iptables "-A" qcn args
 
 let emit_chainpolicy qcn policy =
   let setpol policyname =
@@ -98,26 +100,28 @@ let rec emit_chain' qcn = function
     emit_chain' qcn ccq cond
   | Chain_continue loc -> fun cond -> SL []
   | Chain_decision (_, Accept) -> fun cond ->
-    emit_iptables qcn (AL[AV"-j"; AV "ACCEPT"; emit_cond cond])
+    emit_iptables_A qcn (AL[AV"-j"; AV "ACCEPT"; emit_cond cond])
   | Chain_decision (_, Alter (t, opts)) -> fun cond ->
-    emit_iptables qcn (AL[emit_cond cond; AV"-j"; AV t; AL(emit_options opts)])
+    emit_iptables_A qcn (AL[emit_cond cond; AV"-j";AV t; AL(emit_options opts)])
   | Chain_decision (_, Reject) -> fun cond ->
-    emit_iptables qcn (AL[AV"-j"; AV "REJECT"; emit_cond cond])
+    emit_iptables_A qcn (AL[AV"-j"; AV "REJECT"; emit_cond cond])
   | Chain_decision (_, Drop) -> fun cond ->
-    emit_iptables qcn (AL[AV"-j"; AV "DROP"; emit_cond cond])
+    emit_iptables_A qcn (AL[AV"-j"; AV "DROP"; emit_cond cond])
   | Chain_return loc -> fun cond ->
-    emit_iptables qcn (AL[AV"-j"; AV "RETURN"; emit_cond cond])
+    emit_iptables_A qcn (AL[AV"-j"; AV "RETURN"; emit_cond cond])
   | Chain_fail loc -> fun _ -> failwith "The fail keyword is not implemented."
   | Chain_goto (loc, cn) -> fun cond ->
-    emit_iptables qcn (AL[AV"-g"; AQ cn; emit_cond cond])
+    emit_iptables_A qcn (AL[AV"-g"; AQ cn; emit_cond cond])
   | Chain_call (loc, cn, cont) -> fun cond ->
-    emit_iptables qcn (AL[AV"-j"; AQ cn; emit_cond cond]) >>
+    emit_iptables_A qcn (AL[AV"-j"; AQ cn; emit_cond cond]) >>
     emit_chain' qcn cont cond
   | Chain_log (loc, opts, cont) -> fun cond ->
-    emit_iptables qcn
+    emit_iptables_A qcn
 	(AL[AV"-j"; AV"LOG"; AL (emit_logopts opts); emit_cond cond]) >>
     emit_chain' qcn cont cond
 
-let emit_chain qcn (policy, chain) =
+let emit_chain ?(emit_new = false) ?(emit_flush = false) qcn (policy, chain) =
+  (if emit_new then emit_iptables "-N" qcn (AL []) else SL []) >>
   emit_chainpolicy qcn policy >>
+  (if emit_flush then emit_iptables "-F" qcn (AL []) else SL []) >>
   emit_chain' qcn chain (Cond_const (Iplogic_utils.dummy_loc, true))
