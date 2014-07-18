@@ -23,6 +23,8 @@ open Unprime_option
 
 let (>>) x y = SL[x; y]
 
+let iptables_command = ref "iptables"
+
 let set_of_list xs =
   Iplogic_utils.(List.fold String_set.add xs String_set.empty)
 
@@ -90,7 +92,7 @@ let rec emit_logopts = function
 
 let emit_iptables op qcn args =
   SC (AL [
-    AV"iptables";
+    AV !iptables_command;
     AV"-t"; AQ (fst qcn);
     AV op; AQ (snd qcn);
     args
@@ -102,7 +104,7 @@ let emit_iptables_N qcn = SLor [emit_iptables "-N" qcn (AV "2>/dev/null"); SL[]]
 let emit_chainpolicy qcn policy =
   let setpol policyname =
     SC (AL [
-      AV"iptables";
+      AV !iptables_command;
       AV"-t"; AQ (fst qcn);
       AV"-P"; AQ (snd qcn);
       AQ policyname;

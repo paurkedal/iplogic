@@ -101,6 +101,8 @@ let () =
 	    the table name for @TABLE@, \
 	    the chain name for @CHAIN@, and \
 	    the rules for a line containing exactly the string @RULES@.";
+    "-iptables-command", Arg.Set_string Iplogic_iptables.iptables_command,
+      "COMMAND Use COMMAND as the iptables command.";
     "-split-chains", Arg.Set opt_split_chains,
       " Split chains into individual files.";
     "-emit-new", Arg.Set opt_emit_new,
