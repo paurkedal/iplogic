@@ -1,4 +1,4 @@
-(* Copyright (C) 2013--2014  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2013--2016  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@ let () =
   let argspecs = Arg.align [
     "-o", set_string opt_o,
       "PATH Store firewall script in PATH.  \
-	    If --split-chains has been passed, then this is taken to be a \
+	    If -split-chains has been passed, then this is taken to be a \
 	    template for the individual filewall scripts substituting \
 	    the table name for %t and \
 	    the chain name for %c.";
