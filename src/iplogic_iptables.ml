@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2014  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2016  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +71,7 @@ let rec emit_cond = function
   | Cond_or _ -> invalid_arg "Disjunction should have been eliminated."
   | Cond_not (loc, c) ->
     (match c with Cond_flag _ -> ()
-		| _ -> invalid_arg "Negation should have been distributed.");
+                | _ -> invalid_arg "Negation should have been distributed.");
     AL [AV"!"; emit_cond c]
   | Cond_flag (_, flag, expr) -> AL[AV flag; AQ (expr_to_string expr)]
   | Cond_call _ -> invalid_arg "Calls should have been inlined."
@@ -141,20 +141,20 @@ let rec emit_chain' qcn = function
     emit_chain' qcn cont cond
   | Chain_log (loc, opts, cont) -> fun cond ->
     emit_iptables_A qcn
-	(AL[AV"-j"; AV"LOG"; AL (emit_logopts opts); emit_cond cond]) >>
+        (AL[AV"-j"; AV"LOG"; AL (emit_logopts opts); emit_cond cond]) >>
     emit_chain' qcn cont cond
 
 let emit_chain ?(emit_new = false) ?(emit_new_deps = false)
-	       ?(emit_flush = false) qcn (policy, chain) =
+               ?(emit_flush = false) qcn (policy, chain) =
   let builtin_targets = builtin_targets_for (fst qcn) in
     (* Only needed when emit_new_deps, but called in any case to check that
      * the table name is valid. *)
   begin if emit_new_deps then
     let open Iplogic_utils in
     String_set.fold (fun cn m ->
-		      if String_set.mem cn builtin_targets then m else
-		      m >> emit_iptables_N (fst qcn, cn))
-		    (chain_targets chain) (SL [])
+                      if String_set.mem cn builtin_targets then m else
+                      m >> emit_iptables_N (fst qcn, cn))
+                    (chain_targets chain) (SL [])
   else SL [] end >>
   (if emit_new then emit_iptables_N qcn else SL []) >>
   emit_chainpolicy qcn policy >>

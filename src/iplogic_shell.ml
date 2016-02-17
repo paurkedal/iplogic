@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2014  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2016  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,14 +69,14 @@ let rec output_shell_seq_inline ~prec chan = function
     output_string chan "{ ";
     List.iter
       (fun sq -> output_shell_seq_inline ~prec:1 chan sq;
-		 output_string chan "; ") sqs;
+                 output_string chan "; ") sqs;
     output_string chan "}"
   | SLor [] -> output_string chan "false"
   | SLor (sq :: sqs) ->
     output_shell_seq_inline ~prec:2 chan sq;
     List.iter
       (fun sq -> output_string chan " || ";
-		 output_shell_seq_inline ~prec:2 chan sq) sqs
+                 output_shell_seq_inline ~prec:2 chan sq) sqs
 
 let rec output_shell_seq ?(prefix = "") chan = function
   | SL sq ->

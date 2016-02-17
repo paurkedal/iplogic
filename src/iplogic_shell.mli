@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2014  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2016  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,15 +16,15 @@
 
 (** A specialized monoid for expressing a single shell command. *)
 type shell_args =
-   | AQ of string		(** Quoted command or argument. *)
-   | AV of string		(** Verbatim command or argument. *)
-   | AL of shell_args list	(** Command and argument list. *)
+   | AQ of string               (** Quoted command or argument. *)
+   | AV of string               (** Verbatim command or argument. *)
+   | AL of shell_args list      (** Command and argument list. *)
 
 (** A specialized monoid for expressing a sequence of shell commands. *)
 type shell_seq =
-   | SC of shell_args		(** A single command. *)
-   | SL of shell_seq list	(** A sequence of commands. *)
-   | SLor of shell_seq list	(** A disjunctive sequence of commands. *)
+   | SC of shell_args           (** A single command. *)
+   | SL of shell_seq list       (** A sequence of commands. *)
+   | SLor of shell_seq list     (** A disjunctive sequence of commands. *)
 
 val shell_quoted : string -> string
 

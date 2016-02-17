@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2016  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,12 +82,12 @@ let flagident = ['a'-'z' 'A'-'Z'] ['a'-'z' 'A'-'Z' '-' '0'-'9']*
 let ipv6comp = hexdigit (hexdigit (hexdigit hexdigit?)?)?
 let ipv4addr = digit+ '.' digit+ '.' digit+ '.' digit+
 let ipv6addr =
-	ipv6comp ':' ipv6comp ':' ipv6comp ':' ipv6comp ':'
-	ipv6comp ':' ipv6comp ':' ipv6comp ':' ipv6comp
+        ipv6comp ':' ipv6comp ':' ipv6comp ':' ipv6comp ':'
+        ipv6comp ':' ipv6comp ':' ipv6comp ':' ipv6comp
       | ipv6comp ':' ipv6comp ':' ipv6comp ':' ipv6comp ':'
-	ipv6comp ':' ipv6comp ':' digit+ '.' digit+ '.' digit+ '.' digit+
+        ipv6comp ':' ipv6comp ':' digit+ '.' digit+ '.' digit+ '.' digit+
       | (ipv6comp (':' ipv6comp)*)? ':'
-	    (':' | (':' ipv6comp)+ | (':' ipv6comp)* (':' ipv4addr))
+            (':' | (':' ipv6comp)+ | (':' ipv6comp)* (':' ipv4addr))
 let dnslabel = alnum+ ('-'+ alnum+)*
 let dnslabel_tld = alpha alnum* ('-'+ alnum+)*
 let dnsdomain = (dnslabel '.')+ dnslabel_tld
@@ -113,7 +113,7 @@ rule lexmain state = parse
       | Paren :: nesting -> state.s_nesting <- nesting; RPAREN
       | Interp :: nesting -> state.s_nesting <- nesting; lexinterp state lexbuf
       | [] -> parse_error lexbuf "Unmatched closing paranthesis.";
-	      lexmain state lexbuf }
+              lexmain state lexbuf }
   | '!' { NOT } | "or" { OR }
   | '\\' { COMPL } | '&' { INTER } | ',' { UNION }
   (*| '=' | "<=" | ">=" | "<" | ">" as op { R op }*)
@@ -121,9 +121,9 @@ rule lexmain state = parse
   | ident ':' digit+ as s { NAME s }
   | ident as s
     { try
-	match Hashtbl.find keywords s with
-	| INCLUDE f -> INCLUDE state.s_parse_file
-	| tok -> tok
+        match Hashtbl.find keywords s with
+        | INCLUDE f -> INCLUDE state.s_parse_file
+        | tok -> tok
       with Not_found -> NAME s }
   | ':' { COLON }
   | ".." { DOTS }
@@ -145,9 +145,9 @@ let locate_file ~include_dirs path =
   match
     List.search
       (fun dir ->
-	try let fp = Filename.concat dir path in
-	    ignore (Unix.stat fp); Some fp
-	with Unix.Unix_error (Unix.ENOENT, _, _) -> None)
+        try let fp = Filename.concat dir path in
+            ignore (Unix.stat fp); Some fp
+        with Unix.Unix_error (Unix.ENOENT, _, _) -> None)
       include_dirs
   with
   | Some fp -> fp
@@ -157,7 +157,7 @@ let locate_file ~include_dirs path =
 
 let rec parse_file ?(include_dirs = ["."]) path =
   let path = if Filename.is_relative path then locate_file ~include_dirs path
-					  else path in
+                                          else path in
   let chan = open_in path in
   try
     let lexbuf = from_channel chan in

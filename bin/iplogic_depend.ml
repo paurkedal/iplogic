@@ -1,4 +1,4 @@
-(* Copyright (C) 2014  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2014--2016  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,26 +42,26 @@ let () =
     begin fun fp ->
       let input = Iplogic_lexer.dep_parse_file fp in
       if !opt_split_chains then
-	List.iteri
-	  (fun idx -> function
-	    | Dep_chain (tn, chn) ->
-	      let f = function "%t" -> tn | "%c" -> chn | _ -> assert false in
-	      if idx > 0 then output_char oc ' ';
-	      output_string oc
-		(Pcre.substitute ~rex:path_template_rex ~subst:f !opt_comp_o)
-	    | Dep_include _ -> ())
-	  input
+        List.iteri
+          (fun idx -> function
+            | Dep_chain (tn, chn) ->
+              let f = function "%t" -> tn | "%c" -> chn | _ -> assert false in
+              if idx > 0 then output_char oc ' ';
+              output_string oc
+                (Pcre.substitute ~rex:path_template_rex ~subst:f !opt_comp_o)
+            | Dep_include _ -> ())
+          input
       else
-	output_string oc !opt_comp_o;
+        output_string oc !opt_comp_o;
       output_char oc ':';
       List.iter
-	(function
-	  | Dep_include vp ->
-	    let ifp = Iplogic_lexer.locate_file ~include_dirs:!opt_incdirs vp in
-	    output_char oc ' ';
-	    output_string oc ifp
-	  | Dep_chain (tn, chn) -> ())
-	input;
+        (function
+          | Dep_include vp ->
+            let ifp = Iplogic_lexer.locate_file ~include_dirs:!opt_incdirs vp in
+            output_char oc ' ';
+            output_string oc ifp
+          | Dep_chain (tn, chn) -> ())
+        input;
       output_char oc '\n'
     end
     (List.rev !opt_args);

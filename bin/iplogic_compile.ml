@@ -39,10 +39,10 @@ let emit_templated template_path och subst emit_rules =
     while true do
       let ln = input_line ich in
       if (String.trim ln) = "@RULES@" then
-	emit_rules (String.sub ln 0 (String.index ln '@')) och
+        emit_rules (String.sub ln 0 (String.index ln '@')) och
       else begin
-	output_string och (Pcre.substitute ~rex:template_rex ~subst ln);
-	output_char och '\n'
+        output_string och (Pcre.substitute ~rex:template_rex ~subst ln);
+        output_char och '\n'
       end
     done
   with
@@ -56,7 +56,7 @@ let emit_monolithic ?template_path och chains =
   | None -> List.iter (emit_rules_for_chain "" och) chains
   | Some tp ->
     emit_templated tp och bad_subst
-	(fun prefix och -> List.iter (emit_rules_for_chain prefix och) chains)
+        (fun prefix och -> List.iter (emit_rules_for_chain prefix och) chains)
 
 let path_template_rex = Pcre.regexp "%[tc]"
 
@@ -65,18 +65,18 @@ let emit_by_chain ?emit_new ?emit_flush ?template_path path_template =
     (fun (tn, chn, rules) ->
       let subst_path = function "%t" -> tn | "%c" -> chn | _ -> assert false in
       let subst = function
-	| "@TABLE@" -> tn
-	| "@CHAIN@" -> chn
-	| x -> bad_subst x in
+        | "@TABLE@" -> tn
+        | "@CHAIN@" -> chn
+        | x -> bad_subst x in
       let fp = Pcre.substitute ~rex:path_template_rex ~subst:subst_path
-			       path_template in
+                               path_template in
       let och = open_out fp in
       begin match template_path with
       | None ->
-	emit_rules_for_chain "" och (tn, chn, rules)
+        emit_rules_for_chain "" och (tn, chn, rules)
       | Some tp ->
-	emit_templated tp och subst
-	    (fun prefix och -> emit_rules_for_chain prefix och (tn, chn, rules))
+        emit_templated tp och subst
+            (fun prefix och -> emit_rules_for_chain prefix och (tn, chn, rules))
       end;
       close_out och)
 
@@ -90,17 +90,17 @@ let () =
   let argspecs = Arg.align [
     "-o", set_string opt_o,
       "PATH Store firewall script in PATH.  \
-	    If -split-chains has been passed, then this is taken to be a \
-	    template for the individual filewall scripts substituting \
-	    the table name for %t and \
-	    the chain name for %c.";
+            If -split-chains has been passed, then this is taken to be a \
+            template for the individual filewall scripts substituting \
+            the table name for %t and \
+            the chain name for %c.";
     "-I", Arg.String (fun dir -> opt_incdirs := dir :: !opt_incdirs),
       "DIR Prepend DIR to the list of directories to search for input files.";
     "-template", set_string opt_template,
       "PATH Wrap each output file in the template file PATH, substituting \
-	    the table name for @TABLE@, \
-	    the chain name for @CHAIN@, and \
-	    the rules for a line containing exactly the string @RULES@.";
+            the table name for @TABLE@, \
+            the chain name for @CHAIN@, and \
+            the rules for a line containing exactly the string @RULES@.";
     "-iptables-command", Arg.Set_string Iplogic_iptables.iptables_command,
       "COMMAND Use COMMAND as the iptables command.";
     "-split-chains", Arg.Set opt_split_chains,

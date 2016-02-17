@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2014  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2016  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@ module String_map = Map.Make (String)
 module Env =
   struct
     type t = {
-	emap : (vtype * expr) String_map.t;
-	cmap : cond String_map.t;
-	chmap : (policy * chain) String_map.t String_map.t;
+        emap : (vtype * expr) String_map.t;
+        cmap : cond String_map.t;
+        chmap : (policy * chain) String_map.t String_map.t;
     }
     let empty = {
-	emap = String_map.empty;
-	cmap = String_map.empty;
-	chmap = String_map.empty;
+        emap = String_map.empty;
+        cmap = String_map.empty;
+        chmap = String_map.empty;
     }
     let define_expr loc en e env =
       {env with emap = String_map.add en e env.emap}
@@ -39,17 +39,17 @@ module Env =
       {env with cmap = String_map.add cn c env.cmap}
     let define_chain loc tn chn policy ch env =
       let chmap' =
-	let tm = try String_map.find tn env.chmap
-		 with Not_found -> String_map.empty in
-	String_map.add tn (String_map.add chn (policy, ch) tm) env.chmap in
+        let tm = try String_map.find tn env.chmap
+                 with Not_found -> String_map.empty in
+        String_map.add tn (String_map.add chn (policy, ch) tm) env.chmap in
       {env with chmap = chmap'}
 
     let lookup_expr loc en env =
-	try String_map.find en env.emap with
-	| Not_found -> failf ~loc "Value %s is not defined." en
+        try String_map.find en env.emap with
+        | Not_found -> failf ~loc "Value %s is not defined." en
     let lookup_cond loc cn env =
-	try String_map.find cn env.cmap with
-	| Not_found -> failf ~loc "Condition %s is not defined." cn
+        try String_map.find cn env.cmap with
+        | Not_found -> failf ~loc "Condition %s is not defined." cn
   end
 
 let rec check_expr env = function
@@ -60,8 +60,8 @@ let rec check_expr env = function
     let e0t = check_expr env e0 in
     let e1t = check_expr env e1 in
     if e0t <> e1t then
-	failf ~loc "Incompatible types %s and %s in set expression."
-	    (vtype_to_string e0t) (vtype_to_string e1t);
+        failf ~loc "Incompatible types %s and %s in set expression."
+            (vtype_to_string e0t) (vtype_to_string e1t);
     e0t
   | Expr_range (loc, e0, e1) ->
     begin match value_type e0, value_type e1 with
@@ -162,6 +162,6 @@ let compile defs =
   List.rev
     (String_map.fold
       (fun tn tm ->
-	String_map.fold (fun chn chd acc -> (tn, chn, chd) :: acc) tm)
+        String_map.fold (fun chn chd acc -> (tn, chn, chd) :: acc) tm)
       env.Env.chmap
       [])

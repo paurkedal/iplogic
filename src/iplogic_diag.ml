@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2016  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,18 +20,18 @@ open Unprime_option
 let bprint_loc buf (lb, ub) =
   if lb.Lexing.pos_cnum = ub.Lexing.pos_cnum then
     bprintf buf "%s:%d,%d: "
-	    lb.Lexing.pos_fname
-	    lb.Lexing.pos_lnum (lb.Lexing.pos_cnum - lb.Lexing.pos_bol)
+            lb.Lexing.pos_fname
+            lb.Lexing.pos_lnum (lb.Lexing.pos_cnum - lb.Lexing.pos_bol)
   else if lb.Lexing.pos_lnum = ub.Lexing.pos_lnum then
     bprintf buf "%s:%d,%d-%d: "
-	    lb.Lexing.pos_fname lb.Lexing.pos_lnum
-	    (lb.Lexing.pos_cnum - lb.Lexing.pos_bol)
-	    (ub.Lexing.pos_cnum - ub.Lexing.pos_bol)
+            lb.Lexing.pos_fname lb.Lexing.pos_lnum
+            (lb.Lexing.pos_cnum - lb.Lexing.pos_bol)
+            (ub.Lexing.pos_cnum - ub.Lexing.pos_bol)
   else
     bprintf buf "%s:%d,%d-%d,%d: "
-	    lb.Lexing.pos_fname
-	    lb.Lexing.pos_lnum (lb.Lexing.pos_cnum - lb.Lexing.pos_bol)
-	    ub.Lexing.pos_lnum (ub.Lexing.pos_cnum - ub.Lexing.pos_bol)
+            lb.Lexing.pos_fname
+            lb.Lexing.pos_lnum (lb.Lexing.pos_cnum - lb.Lexing.pos_bol)
+            ub.Lexing.pos_lnum (ub.Lexing.pos_cnum - ub.Lexing.pos_bol)
 
 let sprint_loc loc =
   let buf = Buffer.create 10 in

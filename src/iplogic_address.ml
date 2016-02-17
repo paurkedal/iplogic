@@ -1,4 +1,4 @@
-(* Copyright (C) 2012--2013  Petter Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2016  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,14 +62,14 @@ let parse_ipv6 s =
     | [] -> invalid_arg "Cannot parse empty string an IP address."
     | [comps] ->
       if List.length comps <> 8 then
-	  invalid_arg "Wrong number of hexadecatets in IPv6 address." else
+          invalid_arg "Wrong number of hexadecatets in IPv6 address." else
       List.rev comps
     | [comps0; comps1] ->
       let n = 8 - List.length comps0 - List.length comps1 in
       if n < 0 then
-	  invalid_arg "Too many hexadecatets in IPv6 address." else
+          invalid_arg "Too many hexadecatets in IPv6 address." else
       let rec pad n comps =
-	  if n = 0 then comps else pad (n - 1) (0 :: comps) in
+          if n = 0 then comps else pad (n - 1) (0 :: comps) in
       List.rev_append comps0 (pad n (List.rev comps1))
     | _ ->
       invalid_arg "IPv6 address cannot contain multiple ::-separators." in
@@ -77,7 +77,7 @@ let parse_ipv6 s =
 
 let ipaddr_of_string s =
   if String.contains s ':' then parse_ipv6 s
-			   else parse_ipv4 s
+                           else parse_ipv4 s
 
 let ipaddr_to_v4string addr =
   if not (ipaddr_is_v4 addr) then
@@ -92,10 +92,10 @@ let ipaddr_to_v6string addr =
   let buf = Buffer.create 39 in
   (* TODO: Minimise addresses. *)
   bprintf buf "%x:%x:%x:%x:%x:%x:%x:%x"
-	  (Bitpath.get16 0 addr) (Bitpath.get16 1 addr)
-	  (Bitpath.get16 2 addr) (Bitpath.get16 3 addr)
-	  (Bitpath.get16 4 addr) (Bitpath.get16 5 addr)
-	  (Bitpath.get16 8 addr) (Bitpath.get16 7 addr);
+          (Bitpath.get16 0 addr) (Bitpath.get16 1 addr)
+          (Bitpath.get16 2 addr) (Bitpath.get16 3 addr)
+          (Bitpath.get16 4 addr) (Bitpath.get16 5 addr)
+          (Bitpath.get16 8 addr) (Bitpath.get16 7 addr);
   Buffer.contents buf
 
 let parse_cidr cidr =
@@ -116,7 +116,7 @@ let ipaddrs_of_string cidrs =
     let j = String.skip_until ((=) ',') cidrs i in
     if i = j then invalid_arg "Empty element in address list." else
     loop (j + 1)
-	 (Bitpath_cover.union (parse_cidr (String.slice i j cidrs)) addrs) in
+         (Bitpath_cover.union (parse_cidr (String.slice i j cidrs)) addrs) in
   loop 0 Bitpath_cover.empty
 
 let ipaddrs_to_v4string c =
@@ -139,7 +139,7 @@ let ipaddrs_to_v6string c =
     if Buffer.length buf > 0 then Buffer.add_char buf ',';
     (* TODO: Minimise addresses. *)
     bprintf buf "%x:%x:%x:%x:%x:%x:%x:%x"
-	    a.(0) a.(1) a.(2) a.(3) a.(4) a.(5) a.(6) a.(7);
+            a.(0) a.(1) a.(2) a.(3) a.(4) a.(5) a.(6) a.(7);
     if Bitpath.length addr < 128 then
       bprintf buf "/%d" (Bitpath.length addr) in
   Bitpath_cover.iter add_net c;
