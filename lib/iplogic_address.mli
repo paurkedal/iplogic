@@ -1,4 +1,4 @@
-(* Copyright (C) 2017  Petter A. Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2017  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,10 +14,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-open Ocamlbuild_plugin
+type ipaddr = Bitpath.t
 
-let () =
-  rule "%.mli & %.idem -> %.ml"
-    ~deps:["%.mli"; "%.idem"] ~prod:"%.ml"
-    (fun env build -> cp (env "%.mli") (env "%.ml"));
-  dep ["file:lib/iplogic_parser.cmi"] ["lib/iplogic_parser.mly"]
+val ipaddr_of_string : string -> ipaddr
+
+val ipaddr_is_v4 : ipaddr -> bool
+val ipaddr_to_v4string : ipaddr -> string
+val ipaddr_to_v6string : ipaddr -> string
+
+type ipaddrs = Bitpath_cover.t
+
+val ipaddrs_of_string : string -> ipaddrs
+val ipaddrs_to_v4string : ipaddrs -> string
+val ipaddrs_to_v6string : ipaddrs -> string
+val ipaddrs_to_string : ?v6 : bool -> ipaddrs -> string

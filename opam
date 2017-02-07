@@ -1,0 +1,18 @@
+opam-version: "1.2"
+name: "iplogic"
+authors: ["Petter A. Urkedal"]
+maintainer: "paurkedal@gmail.com"
+homepage: "https://github.com/paurkedal/iplogic/"
+bug-reports: "https://github.com/paurkedal/iplogic/issues"
+dev-repo: "https://github.com/paurkedal/iplogic.git"
+license: "GPL-3"
+
+build: ["ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%"]
+depends: [
+  "bitpath"
+  "ocamlbuild" {build}
+  "pcre"
+  "prime"
+  "topkg" {build}
+  "unix"
+]

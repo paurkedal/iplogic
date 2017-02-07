@@ -14,10 +14,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-open Ocamlbuild_plugin
+open Iplogic_types
 
-let () =
-  rule "%.mli & %.idem -> %.ml"
-    ~deps:["%.mli"; "%.idem"] ~prod:"%.ml"
-    (fun env build -> cp (env "%.mli") (env "%.ml"));
-  dep ["file:lib/iplogic_parser.cmi"] ["lib/iplogic_parser.mly"]
+val locate_file : include_dirs: string list -> string -> string
+
+val parse_file : ?include_dirs: string list -> string -> def list
+
+val dep_parse_file : string -> dep list

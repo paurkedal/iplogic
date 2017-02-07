@@ -1,4 +1,4 @@
-(* Copyright (C) 2017  Petter A. Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2012--2017  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,10 +14,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *)
 
-open Ocamlbuild_plugin
+open Iplogic_types
 
-let () =
-  rule "%.mli & %.idem -> %.ml"
-    ~deps:["%.mli"; "%.idem"] ~prod:"%.ml"
-    (fun env build -> cp (env "%.mli") (env "%.ml"));
-  dep ["file:lib/iplogic_parser.cmi"] ["lib/iplogic_parser.mly"]
+module String_set : Set.S with type elt = string
+
+val dummy_loc : loc
+val expr_loc : expr -> loc
+val cond_loc : cond -> loc
+val chain_loc : chain -> loc
+val def_loc : def -> loc
+
+val value_type : value -> vtype
+val vtype_to_string : vtype -> string
+
+val resolve : loc -> string -> Bitpath_cover.t
+
+val chain_targets : chain -> String_set.t
