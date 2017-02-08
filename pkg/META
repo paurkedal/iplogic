@@ -1,6 +1,6 @@
 description = "Firewall script generator"
 version = "%%VERSION_NUM%%"
-requires = "bitpath pcre prime unix"
+requires = "bitpath re prime unix"
 archive(byte) = "iplogic.cma"
 archive(native) = "iplogic.cmxa"
 plugin(byte) = "iplogic.cma"

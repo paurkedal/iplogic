@@ -1,4 +1,4 @@
-(* Copyright (C) 2013--2016  Petter A. Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2013--2017  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ let emit_rules_for_chain prefix och (tn, chn, rules) =
       ~emit_flush:!opt_emit_flush (tn, chn) rules in
   Iplogic_shell.output_shell_seq ~prefix och commands
 
-let template_rex = Pcre.regexp "@[A-Z]+@"
+let template_re = Re.(compile (seq [char '@'; rep1 (rg 'A' 'Z'); char '@']))
 
 let emit_templated template_path och subst emit_rules =
   let ich = open_in template_path in
@@ -41,43 +41,48 @@ let emit_templated template_path och subst emit_rules =
       if (String.trim ln) = "@RULES@" then
         emit_rules (String.sub ln 0 (String.index ln '@')) och
       else begin
-        output_string och (Pcre.substitute ~rex:template_rex ~subst ln);
+        output_string och (Re.replace template_re subst ln);
         output_char och '\n'
       end
     done
   with
-  | End_of_file -> close_in ich
-  | xc -> close_in ich; raise xc
+   | End_of_file -> close_in ich
+   | xc -> close_in ich; raise xc
 
-let bad_subst x = eprintf "warning: No substitution for %s.\n" x; x
+let bad_subst g =
+  let s = Re.Group.get g 0 in
+  eprintf "warning: No substitution for %s.\n" s; s
 
 let emit_monolithic ?template_path och chains =
-  match template_path with
-  | None -> List.iter (emit_rules_for_chain "" och) chains
-  | Some tp ->
-    emit_templated tp och bad_subst
-        (fun prefix och -> List.iter (emit_rules_for_chain prefix och) chains)
+  (match template_path with
+   | None -> List.iter (emit_rules_for_chain "" och) chains
+   | Some tp ->
+      emit_templated tp och bad_subst
+        (fun prefix och -> List.iter (emit_rules_for_chain prefix och) chains))
 
-let path_template_rex = Pcre.regexp "%[tc]"
+let path_template_re = Re.(compile (seq [char '%'; set "tc"]))
 
 let emit_by_chain ?emit_new ?emit_flush ?template_path path_template =
   List.iter
     (fun (tn, chn, rules) ->
-      let subst_path = function "%t" -> tn | "%c" -> chn | _ -> assert false in
-      let subst = function
-        | "@TABLE@" -> tn
-        | "@CHAIN@" -> chn
-        | x -> bad_subst x in
-      let fp = Pcre.substitute ~rex:path_template_rex ~subst:subst_path
-                               path_template in
+      let subst_path g =
+        (match Re.Group.get g 0 with
+         | "%t" -> tn
+         | "%c" -> chn
+         | _ -> assert false) in
+      let subst g =
+        (match Re.Group.get g 0 with
+         | "@TABLE@" -> tn
+         | "@CHAIN@" -> chn
+         | _ -> bad_subst g) in
+      let fp = Re.replace path_template_re subst_path path_template in
       let och = open_out fp in
-      begin match template_path with
-      | None ->
-        emit_rules_for_chain "" och (tn, chn, rules)
-      | Some tp ->
-        emit_templated tp och subst
-            (fun prefix och -> emit_rules_for_chain prefix och (tn, chn, rules))
-      end;
+      (match template_path with
+       | None ->
+          emit_rules_for_chain "" och (tn, chn, rules)
+       | Some tp ->
+          emit_templated tp och subst
+            (fun pfx och -> emit_rules_for_chain pfx och (tn, chn, rules)));
       close_out och)
 
 let () =

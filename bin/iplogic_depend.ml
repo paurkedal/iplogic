@@ -1,4 +1,4 @@
-(* Copyright (C) 2014--2016  Petter A. Urkedal <paurkedal@gmail.com>
+(* Copyright (C) 2014--2017  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 open Iplogic_types
 open Printf
 
-let path_template_rex = Pcre.regexp "%[tc]"
+let path_template_re = Re.(compile @@ seq [char '%'; set "tc"])
 
 let () =
   let opt_args = ref [] in
@@ -45,10 +45,14 @@ let () =
         List.iteri
           (fun idx -> function
             | Dep_chain (tn, chn) ->
-              let f = function "%t" -> tn | "%c" -> chn | _ -> assert false in
+              let f g =
+                (match Re.Group.get g 0 with
+                 | "%t" -> tn
+                 | "%c" -> chn
+                 | _ -> assert false) in
               if idx > 0 then output_char oc ' ';
               output_string oc
-                (Pcre.substitute ~rex:path_template_rex ~subst:f !opt_comp_o)
+                (Re.replace path_template_re f !opt_comp_o)
             | Dep_include _ -> ())
           input
       else

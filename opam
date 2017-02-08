@@ -11,7 +11,7 @@ build: ["ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%"]
 depends: [
   "bitpath"
   "ocamlbuild" {build}
-  "pcre"
   "prime"
+  "re"
   "topkg" {build}
 ]
