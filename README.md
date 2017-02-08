@@ -1,3 +1,5 @@
+# iplogic - Firewall Script Generator
+
 ## Synopsis
 
 This generates `iptables` shell scripts from a domain specific language
