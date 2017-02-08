@@ -84,18 +84,18 @@ let ipaddr_to_v4string addr =
     invalid_arg "Not an IPv4 address." else
   let buf = Buffer.create 15 in
   bprintf buf "%d.%d.%d.%d"
-    (Bitpath.get8 0 addr) (Bitpath.get8 1 addr)
-    (Bitpath.get8 2 addr) (Bitpath.get8 3 addr);
+    (Bitpath.get8 addr 0) (Bitpath.get8 addr 1)
+    (Bitpath.get8 addr 2) (Bitpath.get8 addr 3);
   Buffer.contents buf
 
 let ipaddr_to_v6string addr =
   let buf = Buffer.create 39 in
   (* TODO: Minimise addresses. *)
   bprintf buf "%x:%x:%x:%x:%x:%x:%x:%x"
-          (Bitpath.get16 0 addr) (Bitpath.get16 1 addr)
-          (Bitpath.get16 2 addr) (Bitpath.get16 3 addr)
-          (Bitpath.get16 4 addr) (Bitpath.get16 5 addr)
-          (Bitpath.get16 8 addr) (Bitpath.get16 7 addr);
+          (Bitpath.get16 addr 0) (Bitpath.get16 addr 1)
+          (Bitpath.get16 addr 2) (Bitpath.get16 addr 3)
+          (Bitpath.get16 addr 4) (Bitpath.get16 addr 5)
+          (Bitpath.get16 addr 8) (Bitpath.get16 addr 7);
   Buffer.contents buf
 
 let parse_cidr cidr =
