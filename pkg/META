@@ -1,8 +1,0 @@
-description = "Firewall script generator"
-version = "%%VERSION_NUM%%"
-requires = "bitpath re prime unix"
-archive(byte) = "iplogic.cma"
-archive(native) = "iplogic.cmxa"
-plugin(byte) = "iplogic.cma"
-plugin(native) = "iplogic.cmxs"
-exists_if = "iplogic.cma"

@@ -1,0 +1,8 @@
+(jbuild_version 1)
+
+(executable
+ ((name simplify_cidrs)
+  (modules (Simplify_cidrs))
+  (libraries (iplogic))))
+
+(alias ((name runtest) (deps (simplify_cidrs.exe))))

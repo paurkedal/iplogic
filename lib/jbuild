@@ -1,0 +1,25 @@
+(jbuild_version 1)
+
+(library
+ ((name iplogic)
+  (public_name iplogic)
+  (wrapped false)
+  (modules
+   (Iplogic_address
+    Iplogic_diag
+    Iplogic_iptables
+    Iplogic_lexer
+    Iplogic_parser
+    Iplogic_passes
+    Iplogic_shell
+    Iplogic_types
+    Iplogic_utils))
+  (libraries (bitpath re prime unix))))
+
+(ocamllex (iplogic_lexer))
+(ocamlyacc (iplogic_parser))
+
+(rule
+ ((targets (iplogic_types.ml))
+  (deps (iplogic_types.mli))
+  (action (copy ${<} ${@}))))

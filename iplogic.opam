@@ -7,11 +7,15 @@ bug-reports: "https://github.com/paurkedal/iplogic/issues"
 dev-repo: "https://github.com/paurkedal/iplogic.git"
 license: "GPL-3"
 
-build: ["ocaml" "pkg/pkg.ml" "build" "--pinned" "%{pinned}%"]
+build: [["jbuilder" "build" "-p" name "-j" jobs]]
+build-test: [["jbuilder" "runtest" "-p" name "-j" jobs]]
+
 depends: [
   "bitpath"
-  "ocamlbuild" {build}
+  "jbuilder" {build}
+  "topkg" {build}
+  "topkg-jbuilder" {build}
   "prime"
   "re"
-  "topkg" {build}
 ]
+available: [ocaml-version >= "4.03.0"]
