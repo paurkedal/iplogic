@@ -81,7 +81,7 @@ let resolve loc name =
     failf ~loc "Failed to resolve %s." name
 
 let rec chain_targets = function
-  | Chain_if (loc, _, ch0, ch1) ->
+  | Chain_if (_, _, ch0, ch1) ->
     String_set.union (chain_targets ch0) (chain_targets ch1)
   | Chain_goto (_, chn) -> String_set.singleton chn
   | Chain_call (_, chn, ch) -> String_set.add chn (chain_targets ch)

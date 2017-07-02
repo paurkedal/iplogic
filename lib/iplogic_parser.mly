@@ -16,7 +16,6 @@
 
 %{
 open Iplogic_types
-open Printf
 
 let lhs_loc () = (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())
 let rhs_loc i = (Parsing.rhs_start_pos i, Parsing.rhs_end_pos i)

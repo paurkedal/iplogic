@@ -15,7 +15,6 @@
  *)
 
 open Iplogic_types
-open Printf
 
 let path_template_re = Re.(compile @@ seq [char '%'; set "tc"])
 
@@ -52,7 +51,7 @@ let () =
                  | _ -> assert false) in
               if idx > 0 then output_char oc ' ';
               output_string oc
-                (Re.replace path_template_re f !opt_comp_o)
+                (Re.replace path_template_re ~f !opt_comp_o)
             | Dep_include _ -> ())
           input
       else
@@ -64,7 +63,7 @@ let () =
             let ifp = Iplogic_lexer.locate_file ~include_dirs:!opt_incdirs vp in
             output_char oc ' ';
             output_string oc ifp
-          | Dep_chain (tn, chn) -> ())
+          | Dep_chain (_tn, _chn) -> ())
         input;
       output_char oc '\n'
     end

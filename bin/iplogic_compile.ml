@@ -41,7 +41,7 @@ let emit_templated template_path och subst emit_rules =
       if (String.trim ln) = "@RULES@" then
         emit_rules (String.sub ln 0 (String.index ln '@')) och
       else begin
-        output_string och (Re.replace template_re subst ln);
+        output_string och (Re.replace template_re ~f:subst ln);
         output_char och '\n'
       end
     done
@@ -63,6 +63,7 @@ let emit_monolithic ?template_path och chains =
 let path_template_re = Re.(compile (seq [char '%'; set "tc"]))
 
 let emit_by_chain ?emit_new ?emit_flush ?template_path path_template =
+  ignore (emit_new, emit_flush);
   List.iter
     (fun (tn, chn, rules) ->
       let subst_path g =
@@ -75,7 +76,7 @@ let emit_by_chain ?emit_new ?emit_flush ?template_path path_template =
          | "@TABLE@" -> tn
          | "@CHAIN@" -> chn
          | _ -> bad_subst g) in
-      let fp = Re.replace path_template_re subst_path path_template in
+      let fp = Re.replace path_template_re ~f:subst_path path_template in
       let och = open_out fp in
       (match template_path with
        | None ->

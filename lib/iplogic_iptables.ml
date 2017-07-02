@@ -19,7 +19,6 @@ open Iplogic_types
 open Iplogic_shell
 open Printf
 open Unprime_list
-open Unprime_option
 
 let (>>) x y = SL[x; y]
 
@@ -54,10 +53,10 @@ let value_to_string ?(v6 = false) ?(quote = false) = function
 
 let rec expr_to_string ?(quote = false) = function
   | Expr_var _ -> invalid_arg "Variables should have been expanded."
-  | Expr_value (loc, v) -> value_to_string ~quote v
-  | Expr_union (loc, x, y) ->
+  | Expr_value (_, v) -> value_to_string ~quote v
+  | Expr_union (_, x, y) ->
     expr_to_string ~quote x ^ "," ^ expr_to_string ~quote y
-  | Expr_range (loc, x, y) ->
+  | Expr_range (_, x, y) ->
     value_to_string ~quote x ^ ":" ^ value_to_string ~quote y
   | Expr_isecn _ -> invalid_arg "Intersections should have been eliminated."
   | Expr_compl _ -> invalid_arg "Complements should have been eliminated."
@@ -69,7 +68,7 @@ let rec emit_cond = function
     invalid_arg "False conditions should have been eliminated."
   | Cond_and (_, c0, c1) -> AL[emit_cond c0; emit_cond c1]
   | Cond_or _ -> invalid_arg "Disjunction should have been eliminated."
-  | Cond_not (loc, c) ->
+  | Cond_not (_, c) ->
     (match c with Cond_flag _ -> ()
                 | _ -> invalid_arg "Negation should have been distributed.");
     AL [AV"!"; emit_cond c]
@@ -115,14 +114,14 @@ let emit_chainpolicy qcn policy =
   | Policy_drop ->   setpol "DROP"
 
 let rec emit_chain' qcn = function
-  | Chain_if (loc, Cond_const (_, true), cq, ccq) -> fun cond ->
+  | Chain_if (_, Cond_const (_, true), cq, _) -> fun cond ->
     emit_chain' qcn cq cond
-  | Chain_if (loc, Cond_const (_, false), cq, ccq) -> fun cond ->
+  | Chain_if (_, Cond_const (_, false), _, ccq) -> fun cond ->
     emit_chain' qcn ccq cond
   | Chain_if (loc, cond', cq, ccq) -> fun cond ->
     emit_chain' qcn cq (Cond_and (loc, cond, cond')) >>
     emit_chain' qcn ccq cond
-  | Chain_continue loc -> fun cond -> SL []
+  | Chain_continue _ -> fun _ -> SL []
   | Chain_decision (_, Accept) -> fun cond ->
     emit_iptables_A qcn (AL[AV"-j"; AV "ACCEPT"; emit_cond cond])
   | Chain_decision (_, Alter (t, opts)) -> fun cond ->
@@ -131,15 +130,15 @@ let rec emit_chain' qcn = function
     emit_iptables_A qcn (AL[AV"-j"; AV "REJECT"; emit_cond cond])
   | Chain_decision (_, Drop) -> fun cond ->
     emit_iptables_A qcn (AL[AV"-j"; AV "DROP"; emit_cond cond])
-  | Chain_return loc -> fun cond ->
+  | Chain_return _ -> fun cond ->
     emit_iptables_A qcn (AL[AV"-j"; AV "RETURN"; emit_cond cond])
-  | Chain_fail loc -> fun _ -> failwith "The fail keyword is not implemented."
-  | Chain_goto (loc, cn) -> fun cond ->
+  | Chain_fail _ -> fun _ -> failwith "The fail keyword is not implemented."
+  | Chain_goto (_, cn) -> fun cond ->
     emit_iptables_A qcn (AL[AV"-g"; AQ cn; emit_cond cond])
-  | Chain_call (loc, cn, cont) -> fun cond ->
+  | Chain_call (_, cn, cont) -> fun cond ->
     emit_iptables_A qcn (AL[AV"-j"; AQ cn; emit_cond cond]) >>
     emit_chain' qcn cont cond
-  | Chain_log (loc, opts, cont) -> fun cond ->
+  | Chain_log (_, opts, cont) -> fun cond ->
     emit_iptables_A qcn
         (AL[AV"-j"; AV"LOG"; AL (emit_logopts opts); emit_cond cond]) >>
     emit_chain' qcn cont cond

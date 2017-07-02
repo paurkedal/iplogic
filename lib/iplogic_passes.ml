@@ -33,11 +33,11 @@ module Env =
         cmap = String_map.empty;
         chmap = String_map.empty;
     }
-    let define_expr loc en e env =
+    let define_expr _loc en e env =
       {env with emap = String_map.add en e env.emap}
-    let define_cond loc cn c env =
+    let define_cond _loc cn c env =
       {env with cmap = String_map.add cn c env.cmap}
-    let define_chain loc tn chn policy ch env =
+    let define_chain _loc tn chn policy ch env =
       let chmap' =
         let tm = try String_map.find tn env.chmap
                  with Not_found -> String_map.empty in
@@ -54,7 +54,7 @@ module Env =
 
 let rec check_expr env = function
   | Expr_var (loc, en) -> fst (Env.lookup_expr loc en env)
-  | Expr_value (loc, v) -> value_type v
+  | Expr_value (_, v) -> value_type v
   | Expr_isecn (loc, e0, e1) | Expr_union (loc, e0, e1)
   | Expr_compl (loc, e0, e1) ->
     let e0t = check_expr env e0 in
@@ -68,7 +68,7 @@ let rec check_expr env = function
     | Vtype_int, Vtype_int -> Vtype_int
     | _ -> failf ~loc "Expected integers in range expression."
     end
-  | Expr_cat (loc, es) -> Vtype_string
+  | Expr_cat (_, _) -> Vtype_string
 
 let rec denote_ipaddrs = function
   | Expr_isecn (_, e0, e1) ->
@@ -87,7 +87,7 @@ let rec simplify_expr env = function
     begin function
     | Expr_cat (loc, es) ->
       Expr_cat (loc, List.map (check_and_simplify_expr env) es)
-    | Expr_value (loc, v) as e -> e
+    | Expr_value _ as e -> e
     | _ -> assert false
     end
   | Vtype_ipaddrs ->

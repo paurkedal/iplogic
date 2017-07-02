@@ -122,7 +122,7 @@ rule lexmain state = parse
   | ident as s
     { try
         match Hashtbl.find keywords s with
-        | INCLUDE f -> INCLUDE state.s_parse_file
+        | INCLUDE _ -> INCLUDE state.s_parse_file
         | tok -> tok
       with Not_found -> NAME s }
   | ':' { COLON }
@@ -177,7 +177,7 @@ let rec parse_file ?(include_dirs = ["."]) path =
     close_in chan;
     raise xc
 
-let rec dep_parse_file path =
+let dep_parse_file path =
   let chan = open_in path in
   try
     let lexbuf = from_channel chan in
