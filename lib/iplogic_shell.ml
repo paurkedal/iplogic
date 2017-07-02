@@ -65,7 +65,7 @@ let rec output_shell_seq_inline ~prec chan = function
   | SC c -> output_shell_args chan c
   | SL [] -> output_string chan ":"
   | SL [sq] | SLor [sq] -> output_shell_seq_inline ~prec chan sq
-  | SL (sq :: sqs) ->
+  | SL sqs ->
     output_string chan "{ ";
     List.iter
       (fun sq -> output_shell_seq_inline ~prec:1 chan sq;
