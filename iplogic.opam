@@ -13,8 +13,6 @@ build-test: [["jbuilder" "runtest" "-p" name "-j" jobs]]
 depends: [
   "bitpath"
   "jbuilder" {build}
-  "topkg" {build}
-  "topkg-jbuilder" {build}
   "prime"
   "re"
 ]
