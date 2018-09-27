@@ -1,0 +1,20 @@
+(library
+  (name iplogic)
+  (public_name iplogic)
+  (wrapped false)
+  (modules
+    Iplogic_address
+    Iplogic_diag
+    Iplogic_iptables
+    Iplogic_lexer
+    Iplogic_parser
+    Iplogic_passes
+    Iplogic_shell
+    Iplogic_types
+    Iplogic_utils)
+  (modules_without_implementation
+    Iplogic_types)
+  (libraries bitpath re prime unix))
+
+(ocamllex iplogic_lexer)
+(ocamlyacc iplogic_parser)

@@ -1,0 +1,15 @@
+(executable
+  (name iplogic_compile)
+  (modules Iplogic_compile)
+  (libraries iplogic))
+
+(executable
+  (name iplogic_depend)
+  (modules Iplogic_depend)
+  (libraries iplogic))
+
+(install
+  (section bin)
+  (files
+    (iplogic_compile.exe as iplogic-compile)
+    (iplogic_depend.exe as iplogic-depend)))
