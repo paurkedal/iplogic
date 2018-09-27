@@ -1,19 +1,19 @@
-opam-version: "1.2"
+opam-version: "2.0"
 name: "iplogic"
-author: "Petter A. Urkedal <paurkedal@gmail.com>"
 maintainer: "Petter A. Urkedal <paurkedal@gmail.com>"
+authors: "Petter A. Urkedal <paurkedal@gmail.com>"
+license: "GPL-3"
 homepage: "https://github.com/paurkedal/iplogic/"
 bug-reports: "https://github.com/paurkedal/iplogic/issues"
-dev-repo: "https://github.com/paurkedal/iplogic.git"
-license: "GPL-3"
-
-build: [["jbuilder" "build" "-p" name "-j" jobs]]
-build-test: [["jbuilder" "runtest" "-p" name "-j" jobs]]
-
 depends: [
+  "ocaml" {>= "4.03.0"}
   "bitpath"
   "jbuilder" {build}
   "prime"
   "re"
 ]
-available: [ocaml-version >= "4.03.0"]
+build: [
+  ["jbuilder" "build" "-p" name "-j" jobs]
+  ["jbuilder" "runtest" "-p" name "-j" jobs] {with-test}
+]
+dev-repo: "git+https://github.com/paurkedal/iplogic.git"
